@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* THRIVE+ v4.2 FINAL */
+        /* THRIVE+ v4.3 (Safe Mode) */
         :root { --bg: #000000; --card: #111; --gold: #D4AF37; }
         body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
@@ -28,7 +28,6 @@
         .checkbox-gold { accent-color: var(--gold); width: 18px; height: 18px; }
         .chip { background: #222; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
         
-        /* GRAPH BARS */
         .bar-container { display: flex; align-items: flex-end; justify-content: space-between; height: 140px; gap: 4px; padding-top: 20px; }
         .bar { background: #333; width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative; }
         .bar.active { background: var(--gold); }
@@ -41,7 +40,7 @@
 
     <header class="flex justify-between items-center pt-8 mb-4">
         <div>
-            <h1 class="text-2xl font-black italic tracking-tighter">THRIVE<span class="text-yellow-600">+</span> <span class="text-[10px] not-italic opacity-30 font-normal">v4.2</span></h1>
+            <h1 class="text-2xl font-black italic tracking-tighter">THRIVE<span class="text-yellow-600">+</span> <span class="text-[10px] not-italic opacity-30 font-normal">v4.3</span></h1>
             <p id="date-display" class="text-[10px] tracking-[0.2em] text-gray-500 uppercase mt-1">LOADING</p>
         </div>
         <div class="flex gap-2">
@@ -94,7 +93,7 @@
             <div id="food-list" class="space-y-2"></div>
         </section>
 
-        <section id="view-metrics" class="view-section space-y-6">
+        <section id="view-stats" class="view-section space-y-6">
             <div class="grid grid-cols-2 gap-4">
                 <div class="card p-4">
                     <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current</p>
@@ -148,7 +147,7 @@
     <nav class="fixed bottom-6 left-6 right-6 h-16 bg-[#111]/95 border border-white/10 rounded-full flex justify-around items-center z-50 shadow-2xl">
         <button onclick="show('gym')" id="n-gym" class="nav-btn active-nav"><i class="fa-solid fa-dumbbell text-lg"></i></button>
         <button onclick="show('food')" id="n-food" class="nav-btn"><i class="fa-solid fa-utensils text-lg"></i></button>
-        <button onclick="show('metrics')" id="n-metrics" class="nav-btn"><i class="fa-solid fa-chart-simple text-lg"></i></button>
+        <button onclick="show('stats')" id="n-stats" class="nav-btn"><i class="fa-solid fa-chart-bar text-lg"></i></button>
         <button onclick="show('rec')" id="n-rec" class="nav-btn"><i class="fa-solid fa-book text-lg"></i></button>
     </nav>
 
@@ -279,3 +278,4 @@
     </script>
 </body>
 </html>
+
