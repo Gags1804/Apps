@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* THRIVE+ THEME v4 */
+        /* THRIVE+ THEME v4.1 */
         :root { --bg: #000000; --card: #111; --gold: #D4AF37; --dim: #444; }
         body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
@@ -99,25 +99,25 @@
         <section id="view-metrics" class="view-section space-y-6">
             <div class="grid grid-cols-2 gap-4">
                 <div class="card p-4">
-                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current</p>
+                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current Weight</p>
                     <p id="disp-w" class="text-2xl font-bold">-- <span class="text-sm opacity-50 font-normal">kg</span></p>
                 </div>
-                <div class="card p-4">
+                <div class="card p-4 relative">
                     <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">BMI</p>
                     <p id="disp-bmi" class="text-2xl font-bold text-yellow-500">--</p>
+                    <p id="bmi-cat" class="text-[10px] opacity-70 mt-1">--</p>
                 </div>
             </div>
 
             <div class="card p-5">
                 <h3 class="text-[10px] opacity-50 uppercase tracking-widest">Weight Trend (Last 7 Entries)</h3>
-                <div id="weight-chart" class="bar-container">
-                    </div>
+                <div id="weight-chart" class="bar-container"></div>
             </div>
 
             <div class="card p-5 space-y-4">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center border-b border-[#222] pb-2">
                     <label class="text-xs opacity-70">Height (cm)</label>
-                    <input id="in-h" type="number" class="w-20 text-right bg-transparent border-b border-[#333]" placeholder="180">
+                    <input id="in-h" type="number" class="w-20 text-right bg-transparent" placeholder="180" oninput="saveHeight()">
                 </div>
                 <div class="flex gap-2 pt-2">
                     <input id="in-w" type="number" placeholder="New Weight (kg)">
@@ -224,41 +224,53 @@
         function clearFood(){if(confirm('Clear Log?')){db.food=[]; save();}}
 
         // === METRICS (BMI + GRAPH) ===
+        function saveHeight() { db.profile.height = document.getElementById('in-h').value; save(); }
         function logWeight() {
             const w = document.getElementById('in-w').value;
-            const h = document.getElementById('in-h').value;
-            if(h) db.profile.height = h;
             if(w) db.weight.unshift({d:new Date().toLocaleDateString().slice(0,5), v:parseFloat(w)});
             document.getElementById('in-w').value='';
             logAct(); save();
         }
         function renderMetrics() {
-            // Stats
             const w = db.weight.length ? db.weight[0].v : 0;
             const h = db.profile.height;
+            
+            // Display Weight
             document.getElementById('disp-w').innerHTML = w ? `${w} <span class="text-sm opacity-50 font-normal">kg</span>` : '--';
+            
+            // Calculate BMI & Suggestion
             if(w && h) {
                 const bmi = (w / ((h/100)*(h/100))).toFixed(1);
                 document.getElementById('disp-bmi').innerText = bmi;
+                
+                let cat = '';
+                if(bmi < 18.5) cat = 'Underweight';
+                else if(bmi < 24.9) cat = 'Healthy Weight';
+                else if(bmi < 29.9) cat = 'Overweight';
+                else cat = 'Obese';
+                
+                // Color Logic
+                const color = cat === 'Healthy Weight' ? 'text-green-500' : (cat === 'Obese' ? 'text-red-500' : 'text-yellow-500');
+                document.getElementById('bmi-cat').innerHTML = `<span class="${color}">${cat}</span>`;
             }
             
-            // History
+            // History List
             document.getElementById('weight-list').innerHTML = db.weight.map(x=>`<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-50">${x.d}</span><span class="font-bold text-yellow-500">${x.v} kg</span></div>`).join('');
 
-            // Graph (Simple Bar Chart)
+            // Graph
             const chart = document.getElementById('weight-chart');
             chart.innerHTML = '';
             if(db.weight.length > 0) {
-                const data = db.weight.slice(0, 7).reverse(); // Last 7
-                const max = Math.max(...data.map(d => d.v)) + 2;
-                const min = Math.min(...data.map(d => d.v)) - 2;
+                const data = db.weight.slice(0, 7).reverse();
+                const max = Math.max(...data.map(d => d.v)) + 1;
+                const min = Math.min(...data.map(d => d.v)) - 1;
                 
                 data.forEach((pt, i) => {
-                    const h = ((pt.v - min) / (max - min)) * 100; // Normalize height
+                    const h = ((pt.v - min) / (max - min)) * 100;
                     const isLast = i === data.length - 1;
                     chart.innerHTML += `
                         <div class="w-full flex flex-col items-center gap-1">
-                            <div class="bar ${isLast ? 'active' : ''}" style="height: ${Math.max(h, 10)}%"></div>
+                            <div class="bar ${isLast ? 'active' : ''}" style="height: ${Math.max(h, 15)}%"></div>
                             <span class="text-[8px] opacity-30">${pt.d}</span>
                         </div>`;
                 });
@@ -300,4 +312,3 @@
     </script>
 </body>
 </html>
-
