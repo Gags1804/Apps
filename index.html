@@ -9,71 +9,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* THRIVE+ THEME ENGINE */
-        :root { --bg: #050505; --card: #151515; --gold: #D4AF37; --text-dim: #666; --border: #222; }
+        /* THRIVE+ THEME v4 */
+        :root { --bg: #000000; --card: #111; --gold: #D4AF37; --dim: #444; }
         body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* UI CORE */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; }
-        input, textarea { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 12px 0; outline: none; transition: 0.3s; font-size: 14px; }
-        input:focus, textarea:focus { border-bottom-color: var(--gold); }
+        .card { background: var(--card); border: 1px solid #222; border-radius: 20px; }
+        input, textarea { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 10px 0; outline: none; transition: 0.3s; font-size: 14px; }
+        input:focus { border-bottom-color: var(--gold); }
         
-        /* VIEWS */
-        .view-section { display: none; height: calc(100vh - 220px); overflow-y: auto; padding-bottom: 150px; }
-        .active-view { display: block; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* NAVIGATION */
+        /* VIEWS & NAV */
+        .view-section { display: none; height: calc(100vh - 200px); overflow-y: auto; padding-bottom: 150px; }
+        .active-view { display: block; animation: fade 0.3s ease; }
         .nav-btn { opacity: 0.4; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .active-nav { opacity: 1; color: var(--gold); transform: scale(1.05); }
+        .active-nav { opacity: 1; color: var(--gold); }
         
         /* COMPONENTS */
-        .day-btn { opacity: 0.3; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; transition: 0.3s; letter-spacing: 1px; }
+        .day-btn { opacity: 0.3; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; transition: 0.3s; }
         .active-day { opacity: 1; background: #222; color: var(--gold); border: 1px solid var(--gold); }
         .checkbox-gold { accent-color: var(--gold); width: 18px; height: 18px; }
-        .chip { background: #222; border: 1px solid #333; padding: 4px 10px; border-radius: 20px; font-size: 10px; white-space: nowrap; }
+        .chip { background: #222; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
         
-        /* UTILS */
+        /* GRAPH BARS */
+        .bar-container { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; gap: 4px; padding-top: 20px; }
+        .bar { background: #333; width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative; }
+        .bar.active { background: var(--gold); }
         .hide-scroll::-webkit-scrollbar { display: none; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="p-6">
 
     <header class="flex justify-between items-center pt-8 mb-4">
         <div>
-            <h1 class="text-2xl font-black tracking-tighter italic">THRIVE<span class="text-yellow-600">+</span></h1>
-            <div class="flex items-center gap-2 mt-1">
-                <p id="date-display" class="text-[10px] tracking-[0.2em] text-gray-400 uppercase">LOADING</p>
-                <div id="streak-badge" class="hidden flex items-center gap-1 bg-orange-900/30 px-2 py-0.5 rounded text-[9px] text-orange-500 border border-orange-500/20">
-                    <i class="fa-solid fa-fire"></i> <span id="streak-count">0</span>
-                </div>
-            </div>
+            <h1 class="text-2xl font-black italic tracking-tighter">THRIVE<span class="text-yellow-600">+</span></h1>
+            <p id="date-display" class="text-[10px] tracking-[0.2em] text-gray-500 uppercase mt-1">LOADING</p>
         </div>
-        <button onclick="showBackup()" class="w-10 h-10 rounded-full bg-[#111] border border-[#222] flex items-center justify-center text-gray-500 hover:text-white">
-            <i class="fa-solid fa-gear"></i>
-        </button>
+        <div class="flex gap-2">
+            <div id="streak-badge" class="hidden flex items-center gap-1 bg-orange-900/20 px-2 rounded text-[10px] text-orange-500 border border-orange-500/20">
+                <i class="fa-solid fa-fire"></i> <span id="streak-count">0</span>
+            </div>
+            <button onclick="backup()" class="w-8 h-8 rounded-full bg-[#111] border border-[#222] text-gray-500"><i class="fa-solid fa-gear"></i></button>
+        </div>
     </header>
 
     <div class="flex justify-between mb-6 overflow-x-auto gap-2 pb-2 hide-scroll">
-        <button onclick="changeDay('Mon')" id="d-Mon" class="day-btn">MON</button>
-        <button onclick="changeDay('Tue')" id="d-Tue" class="day-btn">TUE</button>
-        <button onclick="changeDay('Wed')" id="d-Wed" class="day-btn">WED</button>
-        <button onclick="changeDay('Thu')" id="d-Thu" class="day-btn">THU</button>
-        <button onclick="changeDay('Fri')" id="d-Fri" class="day-btn">FRI</button>
-        <button onclick="changeDay('Sat')" id="d-Sat" class="day-btn">SAT</button>
-        <button onclick="changeDay('Sun')" id="d-Sun" class="day-btn">SUN</button>
+        <button onclick="setDay('Mon')" id="d-Mon" class="day-btn">MON</button>
+        <button onclick="setDay('Tue')" id="d-Tue" class="day-btn">TUE</button>
+        <button onclick="setDay('Wed')" id="d-Wed" class="day-btn">WED</button>
+        <button onclick="setDay('Thu')" id="d-Thu" class="day-btn">THU</button>
+        <button onclick="setDay('Fri')" id="d-Fri" class="day-btn">FRI</button>
+        <button onclick="setDay('Sat')" id="d-Sat" class="day-btn">SAT</button>
+        <button onclick="setDay('Sun')" id="d-Sun" class="day-btn">SUN</button>
     </div>
 
-    <main id="app-content">
-
+    <main>
         <section id="view-gym" class="view-section active-view space-y-4">
-            <div class="card p-5 flex gap-3 items-center">
-                <input id="gym-input" type="text" placeholder="Add Exercise..." class="text-sm">
-                <button onclick="addExercise()" class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold">+</button>
+            <div class="card p-4 flex gap-3 items-center">
+                <input id="gym-in" placeholder="Add Exercise (e.g. Bench Press 4x8)" class="text-sm">
+                <button onclick="addEx()" class="w-8 h-8 rounded-full bg-white text-black font-bold">+</button>
             </div>
-            
             <div id="gym-list" class="space-y-3"></div>
-            <div id="gym-empty" class="text-center mt-10 opacity-30 text-[10px] tracking-widest hidden">REST DAY</div>
+            <div id="gym-msg" class="text-center mt-10 opacity-30 text-[10px] tracking-widest hidden">REST DAY</div>
         </section>
 
         <section id="view-food" class="view-section space-y-6">
@@ -81,19 +77,18 @@
                 <div class="absolute top-0 left-0 w-1 h-full bg-yellow-600"></div>
                 <div><p id="dash-cal" class="text-xl font-bold">0</p><p class="text-[8px] opacity-40 uppercase">Kcal</p></div>
                 <div class="border-x border-white/10"><p id="dash-pro" class="text-xl font-bold">0g</p><p class="text-[8px] opacity-40 uppercase">Protein</p></div>
-                <div><p id="dash-score" class="text-xl font-bold text-yellow-500">-</p><p class="text-[8px] opacity-40 uppercase">Score</p></div>
+                <div><p id="dash-scr" class="text-xl font-bold text-yellow-500">-</p><p class="text-[8px] opacity-40 uppercase">Score</p></div>
             </div>
 
             <div class="card p-5 space-y-4">
-                <div id="quick-add-container" class="flex gap-2 overflow-x-auto hide-scroll pb-1"></div>
-                
-                <input id="food-name" type="text" placeholder="Meal Name">
+                <div id="quick-add" class="flex gap-2 overflow-x-auto hide-scroll pb-1"></div>
+                <input id="f-name" placeholder="Meal Name">
                 <div class="flex gap-4">
-                    <input id="food-cal" type="number" placeholder="Cals">
-                    <input id="food-pro" type="number" placeholder="Pro (g)">
+                    <input id="f-cal" type="number" placeholder="Cals">
+                    <input id="f-pro" type="number" placeholder="Pro (g)">
                 </div>
-                <div class="flex gap-2 mt-2">
-                    <button onclick="addMeal()" class="flex-1 bg-white text-black py-3 rounded-xl text-[10px] font-bold tracking-widest uppercase">Log</button>
+                <div class="flex gap-2">
+                    <button onclick="addMeal()" class="flex-1 bg-white text-black py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">LOG MEAL</button>
                     <button onclick="clearFood()" class="px-4 bg-[#222] text-red-500 rounded-xl"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
@@ -102,279 +97,203 @@
         </section>
 
         <section id="view-metrics" class="view-section space-y-6">
-            <div class="card p-5 space-y-4">
-                <div class="flex justify-between items-end">
-                    <h3 class="text-xs font-bold opacity-50 uppercase tracking-widest">Current Weight</h3>
-                    <h2 id="current-weight" class="text-3xl font-bold text-white">-- <span class="text-sm opacity-50 font-normal">kg</span></h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="card p-4">
+                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current</p>
+                    <p id="disp-w" class="text-2xl font-bold">-- <span class="text-sm opacity-50 font-normal">kg</span></p>
                 </div>
-                <div class="flex gap-2">
-                    <input id="weight-input" type="number" placeholder="New Weight (kg)" class="text-sm">
+                <div class="card p-4">
+                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">BMI</p>
+                    <p id="disp-bmi" class="text-2xl font-bold text-yellow-500">--</p>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <h3 class="text-[10px] opacity-50 uppercase tracking-widest">Weight Trend (Last 7 Entries)</h3>
+                <div id="weight-chart" class="bar-container">
+                    </div>
+            </div>
+
+            <div class="card p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs opacity-70">Height (cm)</label>
+                    <input id="in-h" type="number" class="w-20 text-right bg-transparent border-b border-[#333]" placeholder="180">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <input id="in-w" type="number" placeholder="New Weight (kg)">
                     <button onclick="logWeight()" class="px-6 bg-yellow-600 text-black font-bold rounded-lg text-xs">LOG</button>
                 </div>
             </div>
-            
-            <div id="weight-history" class="space-y-2"></div>
+
+            <div id="weight-list" class="space-y-2 pb-10"></div>
         </section>
 
-        <section id="view-recipes" class="view-section space-y-5">
-            <div class="flex bg-[#111] p-1 rounded-xl mb-2">
-                <button onclick="toggleRec('vault')" id="tab-vault" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222] text-white">VAULT</button>
-                <button onclick="toggleRec('list')" id="tab-list" class="flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40">GROCERY</button>
+        <section id="view-rec" class="view-section space-y-5">
+            <div class="flex bg-[#111] p-1 rounded-xl mb-4">
+                <button onclick="togRec('vault')" id="tab-v" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]">VAULT</button>
+                <button onclick="togRec('list')" id="tab-l" class="flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40">GROCERY</button>
             </div>
-
-            <div id="sec-vault" class="space-y-4">
+            
+            <div id="box-v" class="space-y-4">
                 <div class="card p-4 space-y-3">
-                    <input id="rec-name" placeholder="Recipe Name">
-                    <textarea id="rec-ing" rows="1" placeholder="Ingredients (e.g. Rice, Chicken)"></textarea>
-                    <button onclick="addRec()" class="w-full border border-white/10 py-2 rounded-lg text-[10px] hover:bg-white/5 uppercase">Save</button>
+                    <input id="r-name" placeholder="Recipe Name">
+                    <textarea id="r-ing" rows="1" placeholder="Ingredients (comma separated)"></textarea>
+                    <button onclick="addRec()" class="w-full border border-white/10 py-2 rounded-lg text-[10px] hover:bg-white/5 uppercase">Save Recipe</button>
                 </div>
-                <p class="text-center text-[9px] opacity-30 italic">AI Tip: Paste ingredient list from Gemini directly.</p>
-                <div id="vault-list" class="space-y-3"></div>
+                <div id="rec-list" class="space-y-3"></div>
             </div>
-
-            <div id="sec-groc" class="hidden space-y-4">
-                <div class="flex justify-between px-2">
-                    <span class="text-[10px] opacity-50 uppercase tracking-widest">Smart List</span>
-                    <button onclick="clearGroc()" class="text-[10px] text-red-500">Clear</button>
-                </div>
+            
+            <div id="box-l" class="hidden space-y-3">
+                <div class="flex justify-between px-2"><span class="text-[10px] opacity-50 uppercase">Shopping List</span><button onclick="clrGroc()" class="text-red-500 text-[10px]">Clear</button></div>
                 <div id="groc-list" class="space-y-2"></div>
             </div>
         </section>
-
-        <section id="view-tools" class="view-section space-y-6">
-            <div class="card p-6 space-y-4">
-                <h3 class="text-[10px] font-bold opacity-40 uppercase tracking-widest">1-Rep Max Estimator</h3>
-                <div class="flex gap-4">
-                    <input id="orm-w" type="number" placeholder="Weight">
-                    <input id="orm-r" type="number" placeholder="Reps">
-                </div>
-                <div class="flex justify-between items-center pt-2">
-                    <button onclick="calcORM()" class="bg-[#222] px-4 py-2 rounded-lg text-[10px] border border-white/10">CALCULATE</button>
-                    <span id="orm-res" class="text-xl font-bold text-yellow-500">0 kg</span>
-                </div>
-            </div>
-
-            <div class="card p-6 space-y-4">
-                <h3 class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Kitchen Converter</h3>
-                <div class="flex items-center gap-4">
-                    <input id="conv-g" type="number" oninput="convert()" placeholder="Grams" class="text-lg">
-                    <span class="text-yellow-500 font-bold" id="conv-oz">0.0 oz</span>
-                </div>
-            </div>
-        </section>
-
     </main>
 
-    <nav class="fixed bottom-6 left-6 right-6 h-16 bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-full flex justify-around items-center z-50 shadow-2xl">
-        <button onclick="show('gym')" id="n-gym" class="nav-btn active-nav"><i class="fa-solid fa-dumbbell"></i></button>
-        <button onclick="show('food')" id="n-food" class="nav-btn"><i class="fa-solid fa-bowl-food"></i></button>
-        <button onclick="show('metrics')" id="n-metrics" class="nav-btn"><i class="fa-solid fa-chart-line"></i></button>
-        <button onclick="show('recipes')" id="n-recipes" class="nav-btn"><i class="fa-solid fa-book"></i></button>
-        <button onclick="show('tools')" id="n-tools" class="nav-btn"><i class="fa-solid fa-calculator"></i></button>
+    <nav class="fixed bottom-6 left-6 right-6 h-16 bg-[#111]/95 border border-white/10 rounded-full flex justify-around items-center z-50 shadow-2xl">
+        <button onclick="show('gym')" id="n-gym" class="nav-btn active-nav"><i class="fa-solid fa-dumbbell text-lg"></i></button>
+        <button onclick="show('food')" id="n-food" class="nav-btn"><i class="fa-solid fa-utensils text-lg"></i></button>
+        <button onclick="show('metrics')" id="n-metrics" class="nav-btn"><i class="fa-solid fa-chart-simple text-lg"></i></button>
+        <button onclick="show('rec')" id="n-rec" class="nav-btn"><i class="fa-solid fa-book text-lg"></i></button>
     </nav>
 
     <script>
-        // === CORE ENGINE ===
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        let currentDay = days[new Date().getDay()];
-        
-        let db = JSON.parse(localStorage.getItem('thrive_db')) || {
-            gym: { Mon: [], Tue: [], Wed: [], Thu: [], Fri: [], Sat: [], Sun: [] },
-            food: [], recipes: [], grocery: [], weight: [],
-            streak: { count: 0, lastLog: null },
-            recentMeals: []
+        // === CORE ===
+        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        let day = days[new Date().getDay()];
+        let db = JSON.parse(localStorage.getItem('thrive_v4')) || {
+            gym: {Mon:[],Tue:[],Wed:[],Thu:[],Fri:[],Sat:[],Sun:[]},
+            food: [], recent: [], recipes: [], grocery: [], weight: [],
+            profile: { height: '' }, streak: { c: 0, last: null }
         };
 
-        function save() { localStorage.setItem('thrive_db', JSON.stringify(db)); render(); }
-        
-        function init() {
-            document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-            changeDay(currentDay);
-            checkStreak();
-            render();
+        function save() { localStorage.setItem('thrive_v4', JSON.stringify(db)); render(); }
+        function init() { 
+            document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'short'});
+            document.getElementById('in-h').value = db.profile.height || '';
+            setDay(day); render();
         }
 
-        // === STREAK LOGIC ===
-        function checkStreak() {
-            const today = new Date().toDateString();
-            const last = db.streak.lastLog;
-            const badge = document.getElementById('streak-badge');
-            
-            if (last !== today) {
-                // Logic to reset if missed a day could go here, keeping it simple for now
-            }
-            if (db.streak.count > 0) {
-                badge.classList.remove('hidden');
-                document.getElementById('streak-count').innerText = db.streak.count;
-            }
+        // === ROUTING ===
+        function show(v) {
+            document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active-view'));
+            document.getElementById('view-'+v).classList.add('active-view');
+            document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active-nav'));
+            document.getElementById('n-'+v).classList.add('active-nav');
         }
-        function logActivity() {
-            const today = new Date().toDateString();
-            if (db.streak.lastLog !== today) {
-                db.streak.count++;
-                db.streak.lastLog = today;
-                checkStreak();
-                save(); // Saves the new streak
-            }
-        }
-
-        // === UI ROUTING ===
-        function show(view) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
-            document.getElementById('view-'+view).classList.add('active-view');
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-nav'));
-            document.getElementById('n-'+view).classList.add('active-nav');
-        }
-        function changeDay(d) {
-            currentDay = d;
-            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active-day'));
-            document.getElementById('d-'+d).classList.add('active-day');
-            renderGym();
+        function setDay(d) {
+            day = d; document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('active-day'));
+            document.getElementById('d-'+d).classList.add('active-day'); renderGym();
         }
 
         // === GYM ===
-        function addExercise() {
-            const v = document.getElementById('gym-input').value;
-            if(!v) return;
-            db.gym[currentDay].push({ name: v, done: false });
-            document.getElementById('gym-input').value = '';
-            logActivity(); save();
+        function addEx() {
+            const v = document.getElementById('gym-in').value; if(!v)return;
+            db.gym[day].push({n:v, d:false}); document.getElementById('gym-in').value='';
+            logAct(); save();
         }
         function renderGym() {
-            const list = document.getElementById('gym-list');
-            const exs = db.gym[currentDay];
-            list.innerHTML = '';
-            document.getElementById('gym-empty').classList.toggle('hidden', exs.length > 0);
-            exs.forEach((e, i) => {
-                list.innerHTML += `
-                    <div class="card p-4 flex justify-between items-center">
-                        <span class="${e.done ? 'line-through opacity-30':''} text-sm">${e.name}</span>
-                        <div class="flex gap-3">
-                            <input type="checkbox" ${e.done?'checked':''} onchange="toggleEx(${i})" class="checkbox-gold">
-                            <button onclick="delEx(${i})" class="text-red-900 text-xs"><i class="fa-solid fa-times"></i></button>
-                        </div>
-                    </div>`;
+            const l = document.getElementById('gym-list'); l.innerHTML=''; const exs = db.gym[day];
+            document.getElementById('gym-msg').classList.toggle('hidden', exs.length>0);
+            exs.forEach((e,i) => {
+                l.innerHTML += `<div class="card p-4 flex justify-between items-center"><span class="${e.d?'line-through opacity-30':''} text-sm">${e.n}</span><div class="flex gap-3"><input type="checkbox" ${e.d?'checked':''} onchange="togEx(${i})" class="checkbox-gold"><button onclick="delEx(${i})" class="text-red-900 text-xs"><i class="fa-solid fa-times"></i></button></div></div>`;
             });
         }
-        function toggleEx(i) { db.gym[currentDay][i].done = !db.gym[currentDay][i].done; save(); }
-        function delEx(i) { db.gym[currentDay].splice(i, 1); save(); }
+        function togEx(i){db.gym[day][i].d=!db.gym[day][i].d; save();}
+        function delEx(i){db.gym[day].splice(i,1); save();}
 
-        // === FOOD & QUICK ADD ===
-        function addMeal(presetName, presetCal, presetPro) {
-            const n = presetName || document.getElementById('food-name').value;
-            const c = presetCal || parseInt(document.getElementById('food-cal').value) || 0;
-            const p = presetPro || parseInt(document.getElementById('food-pro').value) || 0;
-            if(!n) return;
-            
-            db.food.push({ name: n, cal: c, pro: p });
-            
-            // Update Recent
-            const exists = db.recentMeals.find(m => m.name === n);
-            if (!exists) {
-                db.recentMeals.unshift({ name: n, cal: c, pro: p });
-                if(db.recentMeals.length > 5) db.recentMeals.pop();
-            }
-
-            document.getElementById('food-name').value = '';
-            logActivity(); save();
+        // === FOOD ===
+        function addMeal(n,c,p) {
+            const name = n||document.getElementById('f-name').value;
+            const cal = c||parseInt(document.getElementById('f-cal').value)||0;
+            const pro = p||parseInt(document.getElementById('f-pro').value)||0;
+            if(!name)return;
+            db.food.push({n:name,c:cal,p:pro});
+            // Recent History
+            if(!db.recent.find(x=>x.n===name)) { db.recent.unshift({n:name,c:cal,p:pro}); if(db.recent.length>5)db.recent.pop(); }
+            document.getElementById('f-name').value='';
+            logAct(); save();
         }
         function renderFood() {
             let tc=0, tp=0;
-            document.getElementById('food-list').innerHTML = db.food.map(f => {
-                tc+=f.cal; tp+=f.pro;
-                return `<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-80">${f.name}</span><span class="opacity-40">${f.pro}g P | ${f.cal}</span></div>`;
-            }).join('');
-            document.getElementById('dash-cal').innerText = tc;
-            document.getElementById('dash-pro').innerText = tp+'g';
-            document.getElementById('dash-score').innerText = tp>150?'A+':tp>120?'A':tp>100?'B':'C';
-            
-            // Render Quick Add
-            document.getElementById('quick-add-container').innerHTML = db.recentMeals.map(m => 
-                `<button onclick="addMeal('${m.name}', ${m.cal}, ${m.pro})" class="chip hover:bg-yellow-600 hover:text-black transition">${m.name}</button>`
-            ).join('');
+            document.getElementById('food-list').innerHTML = db.food.map(f=>{ tc+=f.c; tp+=f.p; return `<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-80">${f.n}</span><span class="opacity-40">${f.p}g P | ${f.c}</span></div>` }).join('');
+            document.getElementById('dash-cal').innerText=tc; document.getElementById('dash-pro').innerText=tp+'g';
+            document.getElementById('dash-scr').innerText = tp>150?'A+':tp>120?'A':tp>100?'B':'C';
+            document.getElementById('quick-add').innerHTML = db.recent.map(m=>`<button onclick="addMeal('${m.n}',${m.c},${m.p})" class="chip hover:bg-yellow-600 hover:text-black">${m.n}</button>`).join('');
         }
-        function clearFood() { if(confirm('Clear Log?')) { db.food = []; save(); } }
+        function clearFood(){if(confirm('Clear Log?')){db.food=[]; save();}}
 
-        // === WEIGHT TRACKER ===
+        // === METRICS (BMI + GRAPH) ===
         function logWeight() {
-            const w = document.getElementById('weight-input').value;
-            if(!w) return;
-            db.weight.unshift({ date: new Date().toLocaleDateString(), val: w });
-            document.getElementById('weight-input').value = '';
-            logActivity(); save();
+            const w = document.getElementById('in-w').value;
+            const h = document.getElementById('in-h').value;
+            if(h) db.profile.height = h;
+            if(w) db.weight.unshift({d:new Date().toLocaleDateString().slice(0,5), v:parseFloat(w)});
+            document.getElementById('in-w').value='';
+            logAct(); save();
         }
-        function renderWeight() {
-            if(db.weight.length > 0) document.getElementById('current-weight').innerHTML = `${db.weight[0].val} <span class="text-sm opacity-50 font-normal">kg</span>`;
-            document.getElementById('weight-history').innerHTML = db.weight.map(w => 
-                `<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-50">${w.date}</span><span class="font-bold text-yellow-500">${w.val} kg</span></div>`
-            ).join('');
-        }
+        function renderMetrics() {
+            // Stats
+            const w = db.weight.length ? db.weight[0].v : 0;
+            const h = db.profile.height;
+            document.getElementById('disp-w').innerHTML = w ? `${w} <span class="text-sm opacity-50 font-normal">kg</span>` : '--';
+            if(w && h) {
+                const bmi = (w / ((h/100)*(h/100))).toFixed(1);
+                document.getElementById('disp-bmi').innerText = bmi;
+            }
+            
+            // History
+            document.getElementById('weight-list').innerHTML = db.weight.map(x=>`<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-50">${x.d}</span><span class="font-bold text-yellow-500">${x.v} kg</span></div>`).join('');
 
-        // === RECIPES & SMART GROCERY ===
-        function toggleRec(v) {
-            document.getElementById('sec-vault').classList.toggle('hidden', v!=='vault');
-            document.getElementById('sec-groc').classList.toggle('hidden', v!=='list');
-            document.getElementById('tab-vault').className = v==='vault' ? "flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222] text-white" : "flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
-            document.getElementById('tab-list').className = v==='list' ? "flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222] text-white" : "flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
-        }
-        function addRec() {
-            const n = document.getElementById('rec-name').value;
-            const i = document.getElementById('rec-ing').value;
-            if(!n) return;
-            db.recipes.push({ name: n, items: i.split(',').map(x=>x.trim()).filter(x=>x) });
-            document.getElementById('rec-name').value = ''; document.getElementById('rec-ing').value = '';
-            save();
-        }
-        function renderRec() {
-            document.getElementById('vault-list').innerHTML = db.recipes.map((r, i) => `
-                <div class="card p-3 flex justify-between items-center">
-                    <div><div class="font-bold text-sm">${r.name}</div><div class="text-[9px] opacity-50">${r.items.length} Items</div></div>
-                    <div class="flex gap-2"><button onclick="toGroc(${i})" class="border border-white/10 px-2 py-1 rounded text-[9px] uppercase">Add</button><button onclick="delRec(${i})" class="text-red-500 text-[9px]"><i class="fa-solid fa-trash"></i></button></div>
-                </div>`).join('');
-        }
-        function delRec(i) { db.recipes.splice(i, 1); save(); }
-        function toGroc(i) { db.grocery.push(...db.recipes[i].items); save(); alert('Added to list'); }
-        
-        function renderGroc() {
-            const counts = {};
-            db.grocery.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
-            document.getElementById('groc-list').innerHTML = Object.keys(counts).map(k => `
-                <div class="flex justify-between p-3 border-b border-white/5 items-center">
-                    <span class="text-xs opacity-80">${k} ${counts[k]>1 ? `<span class="text-yellow-500 font-bold">(x${counts[k]})</span>` : ''}</span>
-                    <button onclick="remGroc('${k}')" class="text-red-500 text-[10px]"><i class="fa-solid fa-times"></i></button>
-                </div>`).join('');
-        }
-        function remGroc(k) { const idx = db.grocery.indexOf(k); if(idx>-1) db.grocery.splice(idx,1); save(); }
-        function clearGroc() { if(confirm('Clear list?')) { db.grocery = []; save(); } }
-
-        // === TOOLS ===
-        function calcORM() {
-            const w = parseFloat(document.getElementById('orm-w').value);
-            const r = parseFloat(document.getElementById('orm-r').value);
-            if(w && r) document.getElementById('orm-res').innerText = Math.round(w * (1 + r/30)) + ' kg';
-        }
-        function convert() {
-            const v = document.getElementById('conv-g').value;
-            document.getElementById('conv-oz').innerText = (v * 0.035274).toFixed(1) + ' oz';
-        }
-
-        // === BACKUP SYSTEM ===
-        function showBackup() {
-            const action = prompt("Type 'save' to copy data, or paste data to restore:");
-            if(action === 'save') {
-                navigator.clipboard.writeText(JSON.stringify(db));
-                alert("Data copied to clipboard! Save this somewhere safe.");
-            } else if (action && action.length > 10) {
-                try {
-                    db = JSON.parse(action);
-                    save();
-                    alert("Data restored successfully!");
-                } catch(e) { alert("Invalid data code."); }
+            // Graph (Simple Bar Chart)
+            const chart = document.getElementById('weight-chart');
+            chart.innerHTML = '';
+            if(db.weight.length > 0) {
+                const data = db.weight.slice(0, 7).reverse(); // Last 7
+                const max = Math.max(...data.map(d => d.v)) + 2;
+                const min = Math.min(...data.map(d => d.v)) - 2;
+                
+                data.forEach((pt, i) => {
+                    const h = ((pt.v - min) / (max - min)) * 100; // Normalize height
+                    const isLast = i === data.length - 1;
+                    chart.innerHTML += `
+                        <div class="w-full flex flex-col items-center gap-1">
+                            <div class="bar ${isLast ? 'active' : ''}" style="height: ${Math.max(h, 10)}%"></div>
+                            <span class="text-[8px] opacity-30">${pt.d}</span>
+                        </div>`;
+                });
+            } else {
+                chart.innerHTML = '<p class="w-full text-center text-[10px] opacity-30 self-center">LOG WEIGHT TO SEE TREND</p>';
             }
         }
 
-        function render() {
-            renderGym(); renderFood(); renderRec(); renderGroc(); renderWeight();
+        // === RECIPES ===
+        function togRec(v) {
+            document.getElementById('box-v').classList.toggle('hidden', v!=='vault');
+            document.getElementById('box-l').classList.toggle('hidden', v!=='list');
+            document.getElementById('tab-v').className = v==='vault'?"flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]":"flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
+            document.getElementById('tab-l').className = v==='list'?"flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]":"flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
+        }
+        function addRec() {
+            const n = document.getElementById('r-name').value; const i = document.getElementById('r-ing').value;
+            if(!n)return; db.recipes.push({n:n, i:i.split(',').map(x=>x.trim()).filter(x=>x)});
+            document.getElementById('r-name').value=''; document.getElementById('r-ing').value=''; save();
+        }
+        function renderRec() {
+            document.getElementById('rec-list').innerHTML = db.recipes.map((r,i)=>`<div class="card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">${r.n}</div><div class="text-[9px] opacity-50">${r.i.length} Items</div></div><div class="flex gap-2"><button onclick="toGroc(${i})" class="border border-white/10 px-2 py-1 rounded text-[9px] uppercase">Add</button><button onclick="delRec(${i})" class="text-red-500 text-[9px]"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
+            const counts={}; db.grocery.forEach(x=>{counts[x]=(counts[x]||0)+1});
+            document.getElementById('groc-list').innerHTML = Object.keys(counts).map(k=>`<div class="flex justify-between p-3 border-b border-white/5 items-center"><span class="text-xs opacity-80">${k} ${counts[k]>1?`<span class="text-yellow-500 font-bold">(x${counts[k]})</span>`:''}</span><button onclick="remGroc('${k}')" class="text-red-500 text-[10px]"><i class="fa-solid fa-times"></i></button></div>`).join('');
+        }
+        function toGroc(i){db.grocery.push(...db.recipes[i].i);save();alert('Added');}
+        function delRec(i){db.recipes.splice(i,1);save();}
+        function remGroc(k){const i=db.grocery.indexOf(k);if(i>-1)db.grocery.splice(i,1);save();}
+        function clrGroc(){if(confirm('Clear?')){db.grocery=[];save();}}
+
+        // === UTILS ===
+        function logAct() { const t=new Date().toDateString(); if(db.streak.last!==t){db.streak.c++; db.streak.last=t; save();} }
+        function backup() { const a=prompt("Type 'copy' to save, or paste code to restore:"); if(a==='copy'){navigator.clipboard.writeText(JSON.stringify(db));alert('Copied!');}else if(a&&a.length>10){try{db=JSON.parse(a);save();alert('Restored!');}catch(e){alert('Error');}} }
+        function render(){ renderGym(); renderFood(); renderMetrics(); renderRec(); 
+            if(db.streak.c>0){document.getElementById('streak-badge').classList.remove('hidden');document.getElementById('streak-count').innerText=db.streak.c;}
         }
 
         init();
