@@ -9,30 +9,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* THRIVE+ THEME v4.1 */
-        :root { --bg: #000000; --card: #111; --gold: #D4AF37; --dim: #444; }
+        /* THRIVE+ v4.2 FINAL */
+        :root { --bg: #000000; --card: #111; --gold: #D4AF37; }
         body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
         .card { background: var(--card); border: 1px solid #222; border-radius: 20px; }
-        input, textarea { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 10px 0; outline: none; transition: 0.3s; font-size: 14px; }
+        input, textarea { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 12px 0; outline: none; transition: 0.3s; font-size: 14px; }
         input:focus { border-bottom-color: var(--gold); }
         
-        /* VIEWS & NAV */
         .view-section { display: none; height: calc(100vh - 200px); overflow-y: auto; padding-bottom: 150px; }
         .active-view { display: block; animation: fade 0.3s ease; }
+        
         .nav-btn { opacity: 0.4; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
         .active-nav { opacity: 1; color: var(--gold); }
         
-        /* COMPONENTS */
         .day-btn { opacity: 0.3; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; transition: 0.3s; }
         .active-day { opacity: 1; background: #222; color: var(--gold); border: 1px solid var(--gold); }
         .checkbox-gold { accent-color: var(--gold); width: 18px; height: 18px; }
         .chip { background: #222; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
         
         /* GRAPH BARS */
-        .bar-container { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; gap: 4px; padding-top: 20px; }
+        .bar-container { display: flex; align-items: flex-end; justify-content: space-between; height: 140px; gap: 4px; padding-top: 20px; }
         .bar { background: #333; width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative; }
         .bar.active { background: var(--gold); }
+        
         .hide-scroll::-webkit-scrollbar { display: none; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -41,7 +41,7 @@
 
     <header class="flex justify-between items-center pt-8 mb-4">
         <div>
-            <h1 class="text-2xl font-black italic tracking-tighter">THRIVE<span class="text-yellow-600">+</span></h1>
+            <h1 class="text-2xl font-black italic tracking-tighter">THRIVE<span class="text-yellow-600">+</span> <span class="text-[10px] not-italic opacity-30 font-normal">v4.2</span></h1>
             <p id="date-display" class="text-[10px] tracking-[0.2em] text-gray-500 uppercase mt-1">LOADING</p>
         </div>
         <div class="flex gap-2">
@@ -79,7 +79,6 @@
                 <div class="border-x border-white/10"><p id="dash-pro" class="text-xl font-bold">0g</p><p class="text-[8px] opacity-40 uppercase">Protein</p></div>
                 <div><p id="dash-scr" class="text-xl font-bold text-yellow-500">-</p><p class="text-[8px] opacity-40 uppercase">Score</p></div>
             </div>
-
             <div class="card p-5 space-y-4">
                 <div id="quick-add" class="flex gap-2 overflow-x-auto hide-scroll pb-1"></div>
                 <input id="f-name" placeholder="Meal Name">
@@ -92,17 +91,16 @@
                     <button onclick="clearFood()" class="px-4 bg-[#222] text-red-500 rounded-xl"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
-
             <div id="food-list" class="space-y-2"></div>
         </section>
 
         <section id="view-metrics" class="view-section space-y-6">
             <div class="grid grid-cols-2 gap-4">
                 <div class="card p-4">
-                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current Weight</p>
+                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current</p>
                     <p id="disp-w" class="text-2xl font-bold">-- <span class="text-sm opacity-50 font-normal">kg</span></p>
                 </div>
-                <div class="card p-4 relative">
+                <div class="card p-4">
                     <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">BMI</p>
                     <p id="disp-bmi" class="text-2xl font-bold text-yellow-500">--</p>
                     <p id="bmi-cat" class="text-[10px] opacity-70 mt-1">--</p>
@@ -110,21 +108,20 @@
             </div>
 
             <div class="card p-5">
-                <h3 class="text-[10px] opacity-50 uppercase tracking-widest">Weight Trend (Last 7 Entries)</h3>
+                <h3 class="text-[10px] opacity-50 uppercase tracking-widest">Weight Trend</h3>
                 <div id="weight-chart" class="bar-container"></div>
             </div>
 
             <div class="card p-5 space-y-4">
                 <div class="flex justify-between items-center border-b border-[#222] pb-2">
                     <label class="text-xs opacity-70">Height (cm)</label>
-                    <input id="in-h" type="number" class="w-20 text-right bg-transparent" placeholder="180" oninput="saveHeight()">
+                    <input id="in-h" type="number" class="w-20 text-right" placeholder="180" oninput="saveHeight()">
                 </div>
                 <div class="flex gap-2 pt-2">
                     <input id="in-w" type="number" placeholder="New Weight (kg)">
                     <button onclick="logWeight()" class="px-6 bg-yellow-600 text-black font-bold rounded-lg text-xs">LOG</button>
                 </div>
             </div>
-
             <div id="weight-list" class="space-y-2 pb-10"></div>
         </section>
 
@@ -133,7 +130,6 @@
                 <button onclick="togRec('vault')" id="tab-v" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]">VAULT</button>
                 <button onclick="togRec('list')" id="tab-l" class="flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40">GROCERY</button>
             </div>
-            
             <div id="box-v" class="space-y-4">
                 <div class="card p-4 space-y-3">
                     <input id="r-name" placeholder="Recipe Name">
@@ -142,7 +138,6 @@
                 </div>
                 <div id="rec-list" class="space-y-3"></div>
             </div>
-            
             <div id="box-l" class="hidden space-y-3">
                 <div class="flex justify-between px-2"><span class="text-[10px] opacity-50 uppercase">Shopping List</span><button onclick="clrGroc()" class="text-red-500 text-[10px]">Clear</button></div>
                 <div id="groc-list" class="space-y-2"></div>
@@ -158,7 +153,6 @@
     </nav>
 
     <script>
-        // === CORE ===
         const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         let day = days[new Date().getDay()];
         let db = JSON.parse(localStorage.getItem('thrive_v4')) || {
@@ -174,7 +168,6 @@
             setDay(day); render();
         }
 
-        // === ROUTING ===
         function show(v) {
             document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active-view'));
             document.getElementById('view-'+v).classList.add('active-view');
@@ -186,7 +179,6 @@
             document.getElementById('d-'+d).classList.add('active-day'); renderGym();
         }
 
-        // === GYM ===
         function addEx() {
             const v = document.getElementById('gym-in').value; if(!v)return;
             db.gym[day].push({n:v, d:false}); document.getElementById('gym-in').value='';
@@ -202,14 +194,12 @@
         function togEx(i){db.gym[day][i].d=!db.gym[day][i].d; save();}
         function delEx(i){db.gym[day].splice(i,1); save();}
 
-        // === FOOD ===
         function addMeal(n,c,p) {
             const name = n||document.getElementById('f-name').value;
             const cal = c||parseInt(document.getElementById('f-cal').value)||0;
             const pro = p||parseInt(document.getElementById('f-pro').value)||0;
             if(!name)return;
             db.food.push({n:name,c:cal,p:pro});
-            // Recent History
             if(!db.recent.find(x=>x.n===name)) { db.recent.unshift({n:name,c:cal,p:pro}); if(db.recent.length>5)db.recent.pop(); }
             document.getElementById('f-name').value='';
             logAct(); save();
@@ -223,7 +213,6 @@
         }
         function clearFood(){if(confirm('Clear Log?')){db.food=[]; save();}}
 
-        // === METRICS (BMI + GRAPH) ===
         function saveHeight() { db.profile.height = document.getElementById('in-h').value; save(); }
         function logWeight() {
             const w = document.getElementById('in-w').value;
@@ -234,52 +223,31 @@
         function renderMetrics() {
             const w = db.weight.length ? db.weight[0].v : 0;
             const h = db.profile.height;
-            
-            // Display Weight
             document.getElementById('disp-w').innerHTML = w ? `${w} <span class="text-sm opacity-50 font-normal">kg</span>` : '--';
-            
-            // Calculate BMI & Suggestion
             if(w && h) {
                 const bmi = (w / ((h/100)*(h/100))).toFixed(1);
                 document.getElementById('disp-bmi').innerText = bmi;
-                
-                let cat = '';
-                if(bmi < 18.5) cat = 'Underweight';
-                else if(bmi < 24.9) cat = 'Healthy Weight';
-                else if(bmi < 29.9) cat = 'Overweight';
-                else cat = 'Obese';
-                
-                // Color Logic
-                const color = cat === 'Healthy Weight' ? 'text-green-500' : (cat === 'Obese' ? 'text-red-500' : 'text-yellow-500');
-                document.getElementById('bmi-cat').innerHTML = `<span class="${color}">${cat}</span>`;
+                let cat = bmi < 18.5 ? 'Underweight' : bmi < 24.9 ? 'Healthy' : bmi < 29.9 ? 'Overweight' : 'Obese';
+                document.getElementById('bmi-cat').innerHTML = `<span class="${cat==='Healthy'?'text-green-500':'text-yellow-500'}">${cat}</span>`;
             }
-            
-            // History List
             document.getElementById('weight-list').innerHTML = db.weight.map(x=>`<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-50">${x.d}</span><span class="font-bold text-yellow-500">${x.v} kg</span></div>`).join('');
-
-            // Graph
+            
             const chart = document.getElementById('weight-chart');
             chart.innerHTML = '';
             if(db.weight.length > 0) {
                 const data = db.weight.slice(0, 7).reverse();
                 const max = Math.max(...data.map(d => d.v)) + 1;
                 const min = Math.min(...data.map(d => d.v)) - 1;
-                
                 data.forEach((pt, i) => {
                     const h = ((pt.v - min) / (max - min)) * 100;
                     const isLast = i === data.length - 1;
-                    chart.innerHTML += `
-                        <div class="w-full flex flex-col items-center gap-1">
-                            <div class="bar ${isLast ? 'active' : ''}" style="height: ${Math.max(h, 15)}%"></div>
-                            <span class="text-[8px] opacity-30">${pt.d}</span>
-                        </div>`;
+                    chart.innerHTML += `<div class="w-full flex flex-col items-center gap-1"><div class="bar ${isLast ? 'active' : ''}" style="height: ${Math.max(h, 15)}%"></div><span class="text-[8px] opacity-30">${pt.d}</span></div>`;
                 });
             } else {
                 chart.innerHTML = '<p class="w-full text-center text-[10px] opacity-30 self-center">LOG WEIGHT TO SEE TREND</p>';
             }
         }
 
-        // === RECIPES ===
         function togRec(v) {
             document.getElementById('box-v').classList.toggle('hidden', v!=='vault');
             document.getElementById('box-l').classList.toggle('hidden', v!=='list');
@@ -301,7 +269,6 @@
         function remGroc(k){const i=db.grocery.indexOf(k);if(i>-1)db.grocery.splice(i,1);save();}
         function clrGroc(){if(confirm('Clear?')){db.grocery=[];save();}}
 
-        // === UTILS ===
         function logAct() { const t=new Date().toDateString(); if(db.streak.last!==t){db.streak.c++; db.streak.last=t; save();} }
         function backup() { const a=prompt("Type 'copy' to save, or paste code to restore:"); if(a==='copy'){navigator.clipboard.writeText(JSON.stringify(db));alert('Copied!');}else if(a&&a.length>10){try{db=JSON.parse(a);save();alert('Restored!');}catch(e){alert('Error');}} }
         function render(){ renderGym(); renderFood(); renderMetrics(); renderRec(); 
