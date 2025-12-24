@@ -5,59 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AURA PRO</title>
+    <title>Thrive+</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* AURA THEME ENGINE */
-        :root { --bg: #000000; --card: #121212; --gold: #FFD700; --text-dim: #666; --border: #222; }
+        /* THRIVE+ THEME ENGINE */
+        :root { --bg: #050505; --card: #151515; --gold: #D4AF37; --text-dim: #666; --border: #222; }
         body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* UI COMPONENTS */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .gold-text { color: var(--gold); }
-        .gold-border { border-color: var(--gold); }
+        /* UI CORE */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; }
+        input, textarea { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 12px 0; outline: none; transition: 0.3s; font-size: 14px; }
+        input:focus, textarea:focus { border-bottom-color: var(--gold); }
         
-        /* INPUTS */
-        input { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 8px 0; border-radius: 0; outline: none; transition: 0.3s; }
-        input:focus { border-bottom-color: var(--gold); }
+        /* VIEWS */
+        .view-section { display: none; height: calc(100vh - 220px); overflow-y: auto; padding-bottom: 150px; }
+        .active-view { display: block; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* NAVIGATION & TABS */
-        .view-section { display: none; height: calc(100vh - 240px); overflow-y: auto; padding-bottom: 120px; }
-        .active-view { display: block; animation: fadeIn 0.3s ease; }
-        .nav-btn { opacity: 0.4; transition: 0.3s; display: flex; flex-direction: column; items-align: center; justify-content: center; }
-        .active-nav { opacity: 1; color: var(--gold); transform: scale(1.1); }
+        /* NAVIGATION */
+        .nav-btn { opacity: 0.4; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .active-nav { opacity: 1; color: var(--gold); transform: scale(1.05); }
         
-        /* DAY SELECTOR */
-        .day-btn { opacity: 0.3; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 5px 10px; border-radius: 12px; transition: 0.3s; }
-        .active-day { opacity: 1; background: #222; color: var(--gold); border: 1px solid #333; }
+        /* COMPONENTS */
+        .day-btn { opacity: 0.3; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; transition: 0.3s; letter-spacing: 1px; }
+        .active-day { opacity: 1; background: #222; color: var(--gold); border: 1px solid var(--gold); }
+        .checkbox-gold { accent-color: var(--gold); width: 18px; height: 18px; }
+        .chip { background: #222; border: 1px solid #333; padding: 4px 10px; border-radius: 20px; font-size: 10px; white-space: nowrap; }
         
-        /* ANIMATIONS & SCROLL */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* UTILS */
         .hide-scroll::-webkit-scrollbar { display: none; }
-        
-        /* CUSTOM UI ELEMENTS */
-        .progress-ring { transition: stroke-dashoffset 0.5s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
-        .checkbox-gold { accent-color: var(--gold); width: 20px; height: 20px; }
     </style>
 </head>
 <body class="p-6">
 
-    <header class="flex justify-between items-start pt-8 mb-6">
+    <header class="flex justify-between items-center pt-8 mb-4">
         <div>
-            <h1 class="text-3xl font-bold tracking-tighter italic">AURA <span class="text-gray-600 not-italic text-lg">PRO</span></h1>
-            <p id="current-date-display" class="text-[10px] tracking-[0.4em] text-yellow-500 uppercase mt-1">LOADING...</p>
+            <h1 class="text-2xl font-black tracking-tighter italic">THRIVE<span class="text-yellow-600">+</span></h1>
+            <div class="flex items-center gap-2 mt-1">
+                <p id="date-display" class="text-[10px] tracking-[0.2em] text-gray-400 uppercase">LOADING</p>
+                <div id="streak-badge" class="hidden flex items-center gap-1 bg-orange-900/30 px-2 py-0.5 rounded text-[9px] text-orange-500 border border-orange-500/20">
+                    <i class="fa-solid fa-fire"></i> <span id="streak-count">0</span>
+                </div>
+            </div>
         </div>
-        <div class="relative w-14 h-14">
-            <svg class="w-full h-full">
-                <circle class="text-gray-900" stroke-width="3" stroke="currentColor" fill="transparent" r="24" cx="28" cy="28"/>
-                <circle id="header-ring" class="text-yellow-500 progress-ring" stroke-width="3" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="24" cx="28" cy="28"/>
-            </svg>
-            <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" id="header-pct">0%</div>
-        </div>
+        <button onclick="showBackup()" class="w-10 h-10 rounded-full bg-[#111] border border-[#222] flex items-center justify-center text-gray-500 hover:text-white">
+            <i class="fa-solid fa-gear"></i>
+        </button>
     </header>
 
-    <div class="flex justify-between mb-8 overflow-x-auto gap-2 pb-2 border-b border-white/10 hide-scroll">
+    <div class="flex justify-between mb-6 overflow-x-auto gap-2 pb-2 hide-scroll">
         <button onclick="changeDay('Mon')" id="d-Mon" class="day-btn">MON</button>
         <button onclick="changeDay('Tue')" id="d-Tue" class="day-btn">TUE</button>
         <button onclick="changeDay('Wed')" id="d-Wed" class="day-btn">WED</button>
@@ -69,441 +66,319 @@
 
     <main id="app-content">
 
-        <section id="view-gym" class="view-section active-view space-y-5">
+        <section id="view-gym" class="view-section active-view space-y-4">
             <div class="card p-5 flex gap-3 items-center">
-                <input id="gym-input" type="text" placeholder="Add Exercise (e.g., Bench Press 4x8)" class="text-sm">
-                <button onclick="addExercise()" class="w-10 h-10 rounded-full bg-white text-black font-bold flex items-center justify-center hover:bg-gray-200 transition">+</button>
+                <input id="gym-input" type="text" placeholder="Add Exercise..." class="text-sm">
+                <button onclick="addExercise()" class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold">+</button>
             </div>
-
-            <div id="gym-list" class="space-y-3"></div>
             
-            <p id="gym-empty" class="text-center text-[10px] opacity-30 mt-10 tracking-widest hidden">NO WORKOUT PLANNED</p>
-
-            <div class="fixed bottom-28 right-6">
-                <button onclick="toggleTimer()" id="timer-btn" class="bg-[#222] border border-white/20 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xs backdrop-blur-md">
-                    <i class="fa-solid fa-stopwatch"></i>
-                </button>
-            </div>
+            <div id="gym-list" class="space-y-3"></div>
+            <div id="gym-empty" class="text-center mt-10 opacity-30 text-[10px] tracking-widest hidden">REST DAY</div>
         </section>
 
         <section id="view-food" class="view-section space-y-6">
             <div class="card p-6 grid grid-cols-3 gap-2 text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
-                <div><p id="dash-cal" class="text-xl font-bold">0</p><p class="text-[8px] opacity-40 tracking-widest">KCAL</p></div>
-                <div class="border-x border-white/10"><p id="dash-pro" class="text-xl font-bold">0g</p><p class="text-[8px] opacity-40 tracking-widest">PRO</p></div>
-                <div><p id="dash-score" class="text-xl font-bold text-yellow-500">-</p><p class="text-[8px] opacity-40 tracking-widest">SCORE</p></div>
+                <div class="absolute top-0 left-0 w-1 h-full bg-yellow-600"></div>
+                <div><p id="dash-cal" class="text-xl font-bold">0</p><p class="text-[8px] opacity-40 uppercase">Kcal</p></div>
+                <div class="border-x border-white/10"><p id="dash-pro" class="text-xl font-bold">0g</p><p class="text-[8px] opacity-40 uppercase">Protein</p></div>
+                <div><p id="dash-score" class="text-xl font-bold text-yellow-500">-</p><p class="text-[8px] opacity-40 uppercase">Score</p></div>
             </div>
 
             <div class="card p-5 space-y-4">
-                <input id="food-name" type="text" placeholder="Meal Name (e.g. Beef & Rice)" class="text-sm">
+                <div id="quick-add-container" class="flex gap-2 overflow-x-auto hide-scroll pb-1"></div>
+                
+                <input id="food-name" type="text" placeholder="Meal Name">
                 <div class="flex gap-4">
-                    <input id="food-cal" type="number" placeholder="Calories" class="text-sm">
-                    <input id="food-pro" type="number" placeholder="Protein (g)" class="text-sm">
-                    <input id="food-carb" type="number" placeholder="Carbs (g)" class="text-sm">
+                    <input id="food-cal" type="number" placeholder="Cals">
+                    <input id="food-pro" type="number" placeholder="Pro (g)">
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="addMeal()" class="flex-1 bg-white text-black py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200">Log Meal</button>
-                    <button onclick="clearFood()" class="w-12 bg-red-900/30 text-red-500 rounded-xl flex items-center justify-center"><i class="fa-solid fa-trash"></i></button>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="addMeal()" class="flex-1 bg-white text-black py-3 rounded-xl text-[10px] font-bold tracking-widest uppercase">Log</button>
+                    <button onclick="clearFood()" class="px-4 bg-[#222] text-red-500 rounded-xl"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
 
             <div id="food-list" class="space-y-2"></div>
         </section>
 
-        <section id="view-recipes" class="view-section space-y-6">
-            <div class="flex bg-[#222] p-1 rounded-xl mb-4">
-                <button onclick="toggleRecipeView('vault')" id="tab-vault" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#333] text-white transition">RECIPE VAULT</button>
-                <button onclick="toggleRecipeView('list')" id="tab-list" class="flex-1 py-2 text-[10px] font-bold rounded-lg opacity-50 transition">GROCERY LIST</button>
+        <section id="view-metrics" class="view-section space-y-6">
+            <div class="card p-5 space-y-4">
+                <div class="flex justify-between items-end">
+                    <h3 class="text-xs font-bold opacity-50 uppercase tracking-widest">Current Weight</h3>
+                    <h2 id="current-weight" class="text-3xl font-bold text-white">-- <span class="text-sm opacity-50 font-normal">kg</span></h2>
+                </div>
+                <div class="flex gap-2">
+                    <input id="weight-input" type="number" placeholder="New Weight (kg)" class="text-sm">
+                    <button onclick="logWeight()" class="px-6 bg-yellow-600 text-black font-bold rounded-lg text-xs">LOG</button>
+                </div>
+            </div>
+            
+            <div id="weight-history" class="space-y-2"></div>
+        </section>
+
+        <section id="view-recipes" class="view-section space-y-5">
+            <div class="flex bg-[#111] p-1 rounded-xl mb-2">
+                <button onclick="toggleRec('vault')" id="tab-vault" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222] text-white">VAULT</button>
+                <button onclick="toggleRec('list')" id="tab-list" class="flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40">GROCERY</button>
             </div>
 
-            <div id="recipe-vault-container">
-                <div class="card p-5 space-y-3 mb-4">
-                    <input id="rec-name" placeholder="Recipe Name" class="text-sm">
-                    <textarea id="rec-ing" rows="2" placeholder="Ingredients (comma separated)" class="w-full bg-transparent border-b border-[#333] text-white text-sm outline-none resize-none"></textarea>
-                    <button onclick="addRecipe()" class="w-full border border-white/20 py-2 rounded-lg text-[10px] hover:bg-white/5 uppercase">Save to Vault</button>
+            <div id="sec-vault" class="space-y-4">
+                <div class="card p-4 space-y-3">
+                    <input id="rec-name" placeholder="Recipe Name">
+                    <textarea id="rec-ing" rows="1" placeholder="Ingredients (e.g. Rice, Chicken)"></textarea>
+                    <button onclick="addRec()" class="w-full border border-white/10 py-2 rounded-lg text-[10px] hover:bg-white/5 uppercase">Save</button>
                 </div>
+                <p class="text-center text-[9px] opacity-30 italic">AI Tip: Paste ingredient list from Gemini directly.</p>
                 <div id="vault-list" class="space-y-3"></div>
             </div>
 
-            <div id="grocery-list-container" class="hidden">
-                <div class="flex justify-between items-center mb-2 px-2">
-                    <h3 class="text-[10px] opacity-40 uppercase tracking-widest">Shopping List</h3>
-                    <button onclick="clearGroceries()" class="text-[10px] text-red-500">Clear All</button>
+            <div id="sec-groc" class="hidden space-y-4">
+                <div class="flex justify-between px-2">
+                    <span class="text-[10px] opacity-50 uppercase tracking-widest">Smart List</span>
+                    <button onclick="clearGroc()" class="text-[10px] text-red-500">Clear</button>
                 </div>
                 <div id="groc-list" class="space-y-2"></div>
-            </div>
-            
-            <div class="mt-8 text-center opacity-40">
-                <p class="text-[10px] italic">To add via AI: Open Gemini, paste video, ask for ingredients.</p>
             </div>
         </section>
 
         <section id="view-tools" class="view-section space-y-6">
-            <div class="card p-6 space-y-6">
-                <h3 class="text-xs font-bold opacity-40 tracking-widest uppercase mb-4">Kitchen Converter</h3>
-                
-                <div>
-                    <label class="text-[9px] opacity-50 uppercase">Grams <i class="fa-solid fa-arrow-right mx-1"></i> Ounces</label>
-                    <div class="flex items-center gap-4 mt-1">
-                        <input id="tool-g" type="number" oninput="convert('g')" placeholder="0" class="text-xl">
-                        <span class="text-yellow-500 font-bold text-xl" id="res-oz">0.0 oz</span>
-                    </div>
+            <div class="card p-6 space-y-4">
+                <h3 class="text-[10px] font-bold opacity-40 uppercase tracking-widest">1-Rep Max Estimator</h3>
+                <div class="flex gap-4">
+                    <input id="orm-w" type="number" placeholder="Weight">
+                    <input id="orm-r" type="number" placeholder="Reps">
                 </div>
-
-                <div class="pt-4 border-t border-white/10">
-                    <label class="text-[9px] opacity-50 uppercase">Milliliters <i class="fa-solid fa-arrow-right mx-1"></i> Cups</label>
-                    <div class="flex items-center gap-4 mt-1">
-                        <input id="tool-ml" type="number" oninput="convert('ml')" placeholder="0" class="text-xl">
-                        <span class="text-yellow-500 font-bold text-xl" id="res-cup">0.0 cup</span>
-                    </div>
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="calcORM()" class="bg-[#222] px-4 py-2 rounded-lg text-[10px] border border-white/10">CALCULATE</button>
+                    <span id="orm-res" class="text-xl font-bold text-yellow-500">0 kg</span>
                 </div>
             </div>
 
-            <div class="card p-5">
-                <h3 class="text-xs font-bold opacity-40 tracking-widest uppercase mb-4">Cheat Sheet</h3>
-                <div class="space-y-3 text-xs opacity-70">
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>1 tbsp Minced Garlic</span><span>~3 Cloves</span></div>
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>1 cup Rice (Uncooked)</span><span>~185g</span></div>
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>1 Chicken Breast</span><span>~200-250g</span></div>
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>1 tbsp Oil</span><span>14g / 120 cal</span></div>
+            <div class="card p-6 space-y-4">
+                <h3 class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Kitchen Converter</h3>
+                <div class="flex items-center gap-4">
+                    <input id="conv-g" type="number" oninput="convert()" placeholder="Grams" class="text-lg">
+                    <span class="text-yellow-500 font-bold" id="conv-oz">0.0 oz</span>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <nav class="fixed bottom-6 left-6 right-6 h-20 bg-[#151515]/95 backdrop-blur-lg border border-white/10 rounded-[30px] flex justify-around items-center shadow-2xl z-50">
-        <button onclick="switchTab('gym')" id="nav-gym" class="nav-btn active-nav"><i class="fa-solid fa-dumbbell text-xl"></i></button>
-        <button onclick="switchTab('food')" id="nav-food" class="nav-btn"><i class="fa-solid fa-utensils text-xl"></i></button>
-        <button onclick="switchTab('recipes')" id="nav-recipes" class="nav-btn"><i class="fa-solid fa-book-open text-xl"></i></button>
-        <button onclick="switchTab('tools')" id="nav-tools" class="nav-btn"><i class="fa-solid fa-calculator text-xl"></i></button>
+    <nav class="fixed bottom-6 left-6 right-6 h-16 bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-full flex justify-around items-center z-50 shadow-2xl">
+        <button onclick="show('gym')" id="n-gym" class="nav-btn active-nav"><i class="fa-solid fa-dumbbell"></i></button>
+        <button onclick="show('food')" id="n-food" class="nav-btn"><i class="fa-solid fa-bowl-food"></i></button>
+        <button onclick="show('metrics')" id="n-metrics" class="nav-btn"><i class="fa-solid fa-chart-line"></i></button>
+        <button onclick="show('recipes')" id="n-recipes" class="nav-btn"><i class="fa-solid fa-book"></i></button>
+        <button onclick="show('tools')" id="n-tools" class="nav-btn"><i class="fa-solid fa-calculator"></i></button>
     </nav>
 
     <script>
-        // === STATE MANAGEMENT ===
+        // === CORE ENGINE ===
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        let currentDay = days[new Date().getDay()]; // Auto-detect day
+        let currentDay = days[new Date().getDay()];
         
-        // Load Data or Init Empty
-        let db = JSON.parse(localStorage.getItem('aura_pro_db')) || {
+        let db = JSON.parse(localStorage.getItem('thrive_db')) || {
             gym: { Mon: [], Tue: [], Wed: [], Thu: [], Fri: [], Sat: [], Sun: [] },
-            food: [],
-            recipes: [],
-            grocery: []
+            food: [], recipes: [], grocery: [], weight: [],
+            streak: { count: 0, lastLog: null },
+            recentMeals: []
         };
 
-        // === CORE FUNCTIONS ===
-        function saveData() {
-            localStorage.setItem('aura_pro_db', JSON.stringify(db));
-            updateUI();
-        }
-
+        function save() { localStorage.setItem('thrive_db', JSON.stringify(db)); render(); }
+        
         function init() {
-            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
-            changeDay(currentDay); // Set initial day
+            document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+            changeDay(currentDay);
+            checkStreak();
+            render();
         }
 
-        function updateUI() {
-            // Re-render current views
-            renderGym();
-            renderFood();
-            renderVault();
-            renderGrocery();
+        // === STREAK LOGIC ===
+        function checkStreak() {
+            const today = new Date().toDateString();
+            const last = db.streak.lastLog;
+            const badge = document.getElementById('streak-badge');
+            
+            if (last !== today) {
+                // Logic to reset if missed a day could go here, keeping it simple for now
+            }
+            if (db.streak.count > 0) {
+                badge.classList.remove('hidden');
+                document.getElementById('streak-count').innerText = db.streak.count;
+            }
+        }
+        function logActivity() {
+            const today = new Date().toDateString();
+            if (db.streak.lastLog !== today) {
+                db.streak.count++;
+                db.streak.lastLog = today;
+                checkStreak();
+                save(); // Saves the new streak
+            }
         }
 
-        // === NAVIGATION ===
-        function switchTab(tab) {
-            // Hide all views
+        // === UI ROUTING ===
+        function show(view) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
-            // Show selected view
-            document.getElementById(`view-${tab}`).classList.add('active-view');
-            
-            // Update Nav Icons
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-nav'));
-            document.getElementById(`nav-${tab}`).classList.add('active-nav');
+            document.getElementById('view-'+view).classList.add('active-view');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-nav'));
+            document.getElementById('n-'+view).classList.add('active-nav');
+        }
+        function changeDay(d) {
+            currentDay = d;
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active-day'));
+            document.getElementById('d-'+d).classList.add('active-day');
+            renderGym();
         }
 
-        function changeDay(day) {
-            currentDay = day;
-            // Update Day Buttons
-            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active-day'));
-            document.getElementById(`d-${day}`).classList.add('active-day');
-            
-            renderGym(); // Re-render gym list for new day
-        }
-
-        // === GYM LOGIC ===
+        // === GYM ===
         function addExercise() {
-            const input = document.getElementById('gym-input');
-            const name = input.value.trim();
-            if (!name) return;
-            
-            db.gym[currentDay].push({ name: name, done: false });
-            input.value = '';
-            saveData();
+            const v = document.getElementById('gym-input').value;
+            if(!v) return;
+            db.gym[currentDay].push({ name: v, done: false });
+            document.getElementById('gym-input').value = '';
+            logActivity(); save();
         }
-
         function renderGym() {
             const list = document.getElementById('gym-list');
-            const emptyMsg = document.getElementById('gym-empty');
-            const exercises = db.gym[currentDay] || [];
-
+            const exs = db.gym[currentDay];
             list.innerHTML = '';
-            
-            if (exercises.length === 0) {
-                emptyMsg.classList.remove('hidden');
-            } else {
-                emptyMsg.classList.add('hidden');
-                exercises.forEach((ex, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'card p-4 flex justify-between items-center animate-fade-in';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" ${ex.done ? 'checked' : ''} onchange="toggleEx(${index})" class="checkbox-gold">
-                            <span class="${ex.done ? 'line-through opacity-30' : ''} text-sm font-medium">${ex.name}</span>
+            document.getElementById('gym-empty').classList.toggle('hidden', exs.length > 0);
+            exs.forEach((e, i) => {
+                list.innerHTML += `
+                    <div class="card p-4 flex justify-between items-center">
+                        <span class="${e.done ? 'line-through opacity-30':''} text-sm">${e.name}</span>
+                        <div class="flex gap-3">
+                            <input type="checkbox" ${e.done?'checked':''} onchange="toggleEx(${i})" class="checkbox-gold">
+                            <button onclick="delEx(${i})" class="text-red-900 text-xs"><i class="fa-solid fa-times"></i></button>
                         </div>
-                        <button onclick="deleteEx(${index})" class="text-red-500 opacity-50 text-xs"><i class="fa-solid fa-times"></i></button>
-                    `;
-                    list.appendChild(div);
-                });
+                    </div>`;
+            });
+        }
+        function toggleEx(i) { db.gym[currentDay][i].done = !db.gym[currentDay][i].done; save(); }
+        function delEx(i) { db.gym[currentDay].splice(i, 1); save(); }
+
+        // === FOOD & QUICK ADD ===
+        function addMeal(presetName, presetCal, presetPro) {
+            const n = presetName || document.getElementById('food-name').value;
+            const c = presetCal || parseInt(document.getElementById('food-cal').value) || 0;
+            const p = presetPro || parseInt(document.getElementById('food-pro').value) || 0;
+            if(!n) return;
+            
+            db.food.push({ name: n, cal: c, pro: p });
+            
+            // Update Recent
+            const exists = db.recentMeals.find(m => m.name === n);
+            if (!exists) {
+                db.recentMeals.unshift({ name: n, cal: c, pro: p });
+                if(db.recentMeals.length > 5) db.recentMeals.pop();
             }
-            updateHeaderProgress(exercises);
-        }
 
-        function toggleEx(index) {
-            db.gym[currentDay][index].done = !db.gym[currentDay][index].done;
-            saveData();
-        }
-
-        function deleteEx(index) {
-            db.gym[currentDay].splice(index, 1);
-            saveData();
-        }
-
-        function updateHeaderProgress(exercises) {
-            const total = exercises.length;
-            const done = exercises.filter(e => e.done).length;
-            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-            
-            document.getElementById('header-pct').innerText = pct + '%';
-            // Ring Calculation (circumference = 150.8)
-            const offset = 150.8 - (pct / 100 * 150.8);
-            document.getElementById('header-ring').style.strokeDashoffset = offset;
-        }
-
-        // === FOOD LOGIC ===
-        function addMeal() {
-            const name = document.getElementById('food-name').value;
-            const cal = parseInt(document.getElementById('food-cal').value) || 0;
-            const pro = parseInt(document.getElementById('food-pro').value) || 0;
-            const carb = parseInt(document.getElementById('food-carb').value) || 0;
-
-            if (!name) return;
-
-            db.food.push({ name, cal, pro, carb });
-            
-            // Clear inputs
             document.getElementById('food-name').value = '';
-            document.getElementById('food-cal').value = '';
-            document.getElementById('food-pro').value = '';
-            document.getElementById('food-carb').value = '';
-            
-            saveData();
+            logActivity(); save();
         }
-
         function renderFood() {
-            const list = document.getElementById('food-list');
-            list.innerHTML = '';
+            let tc=0, tp=0;
+            document.getElementById('food-list').innerHTML = db.food.map(f => {
+                tc+=f.cal; tp+=f.pro;
+                return `<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-80">${f.name}</span><span class="opacity-40">${f.pro}g P | ${f.cal}</span></div>`;
+            }).join('');
+            document.getElementById('dash-cal').innerText = tc;
+            document.getElementById('dash-pro').innerText = tp+'g';
+            document.getElementById('dash-score').innerText = tp>150?'A+':tp>120?'A':tp>100?'B':'C';
             
-            let totalCal = 0, totalPro = 0;
+            // Render Quick Add
+            document.getElementById('quick-add-container').innerHTML = db.recentMeals.map(m => 
+                `<button onclick="addMeal('${m.name}', ${m.cal}, ${m.pro})" class="chip hover:bg-yellow-600 hover:text-black transition">${m.name}</button>`
+            ).join('');
+        }
+        function clearFood() { if(confirm('Clear Log?')) { db.food = []; save(); } }
 
-            db.food.forEach((item, index) => {
-                totalCal += item.cal;
-                totalPro += item.pro;
-                
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-3 border-b border-white/5 text-xs';
-                div.innerHTML = `
-                    <div class="opacity-80">${item.name}</div>
-                    <div class="opacity-50 tracking-wide">${item.pro}g P • ${item.cal} cal</div>
-                `;
-                list.appendChild(div);
-            });
-
-            // Update Dash
-            document.getElementById('dash-cal').innerText = totalCal;
-            document.getElementById('dash-pro').innerText = totalPro + 'g';
-            
-            // Score Logic (Simple goal: 150g protein)
-            let score = 'F';
-            if (totalPro > 150) score = 'A+';
-            else if (totalPro > 120) score = 'A';
-            else if (totalPro > 100) score = 'B';
-            else if (totalPro > 80) score = 'C';
-            else if (totalPro > 50) score = 'D';
-            
-            document.getElementById('dash-score').innerText = score;
+        // === WEIGHT TRACKER ===
+        function logWeight() {
+            const w = document.getElementById('weight-input').value;
+            if(!w) return;
+            db.weight.unshift({ date: new Date().toLocaleDateString(), val: w });
+            document.getElementById('weight-input').value = '';
+            logActivity(); save();
+        }
+        function renderWeight() {
+            if(db.weight.length > 0) document.getElementById('current-weight').innerHTML = `${db.weight[0].val} <span class="text-sm opacity-50 font-normal">kg</span>`;
+            document.getElementById('weight-history').innerHTML = db.weight.map(w => 
+                `<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-50">${w.date}</span><span class="font-bold text-yellow-500">${w.val} kg</span></div>`
+            ).join('');
         }
 
-        function clearFood() {
-            if(confirm("Clear today's food log?")) {
-                db.food = [];
-                saveData();
-            }
+        // === RECIPES & SMART GROCERY ===
+        function toggleRec(v) {
+            document.getElementById('sec-vault').classList.toggle('hidden', v!=='vault');
+            document.getElementById('sec-groc').classList.toggle('hidden', v!=='list');
+            document.getElementById('tab-vault').className = v==='vault' ? "flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222] text-white" : "flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
+            document.getElementById('tab-list').className = v==='list' ? "flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222] text-white" : "flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
         }
-
-        // === RECIPE & GROCERY LOGIC ===
-        function toggleRecipeView(view) {
-            const vault = document.getElementById('recipe-vault-container');
-            const list = document.getElementById('grocery-list-container');
-            const btnVault = document.getElementById('tab-vault');
-            const btnList = document.getElementById('tab-list');
-
-            if (view === 'vault') {
-                vault.classList.remove('hidden');
-                list.classList.add('hidden');
-                btnVault.classList.replace('bg-[#333]', 'bg-white'); // Highlight fix logic
-                btnVault.classList.replace('text-white', 'text-black');
-                btnVault.classList.remove('opacity-50');
-                
-                btnList.classList.add('bg-[#333]', 'text-white', 'opacity-50');
-                btnList.classList.remove('bg-white', 'text-black');
-            } else {
-                vault.classList.add('hidden');
-                list.classList.remove('hidden');
-                btnList.classList.remove('bg-[#333]', 'text-white', 'opacity-50');
-                btnList.classList.add('bg-white', 'text-black');
-                
-                btnVault.classList.add('bg-[#333]', 'text-white', 'opacity-50');
-                btnVault.classList.remove('bg-white', 'text-black');
-            }
+        function addRec() {
+            const n = document.getElementById('rec-name').value;
+            const i = document.getElementById('rec-ing').value;
+            if(!n) return;
+            db.recipes.push({ name: n, items: i.split(',').map(x=>x.trim()).filter(x=>x) });
+            document.getElementById('rec-name').value = ''; document.getElementById('rec-ing').value = '';
+            save();
         }
-
-        function addRecipe() {
-            const name = document.getElementById('rec-name').value;
-            const ingRaw = document.getElementById('rec-ing').value;
-            
-            if (!name) return;
-            
-            const ingredients = ingRaw.split(',').map(s => s.trim()).filter(s => s);
-            db.recipes.push({ name, ingredients });
-            
-            document.getElementById('rec-name').value = '';
-            document.getElementById('rec-ing').value = '';
-            saveData();
+        function renderRec() {
+            document.getElementById('vault-list').innerHTML = db.recipes.map((r, i) => `
+                <div class="card p-3 flex justify-between items-center">
+                    <div><div class="font-bold text-sm">${r.name}</div><div class="text-[9px] opacity-50">${r.items.length} Items</div></div>
+                    <div class="flex gap-2"><button onclick="toGroc(${i})" class="border border-white/10 px-2 py-1 rounded text-[9px] uppercase">Add</button><button onclick="delRec(${i})" class="text-red-500 text-[9px]"><i class="fa-solid fa-trash"></i></button></div>
+                </div>`).join('');
         }
-
-        function renderVault() {
-            const list = document.getElementById('vault-list');
-            list.innerHTML = '';
-            
-            db.recipes.forEach((rec, index) => {
-                const div = document.createElement('div');
-                div.className = 'card p-4 flex justify-between items-center';
-                div.innerHTML = `
-                    <div>
-                        <div class="font-bold text-sm">${rec.name}</div>
-                        <div class="text-[10px] opacity-50">${rec.ingredients.length} Ingredients</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="addToGrocery(${index})" class="border border-white/20 px-3 py-1 rounded text-[10px] uppercase hover:bg-white/10">Add to List</button>
-                        <button onclick="deleteRecipe(${index})" class="text-red-500 text-xs px-2"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function addToGrocery(index) {
-            const rec = db.recipes[index];
-            db.grocery.push(...rec.ingredients);
-            saveData();
-            alert(`Added ingredients for ${rec.name} to list.`);
-        }
-
-        function deleteRecipe(index) {
-            db.recipes.splice(index, 1);
-            saveData();
-        }
-
-        function renderGrocery() {
-            const list = document.getElementById('groc-list');
-            list.innerHTML = '';
-            
-            db.grocery.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center gap-3 p-2 border-b border-white/5';
-                div.innerHTML = `
-                    <input type="checkbox" class="checkbox-gold w-4 h-4">
-                    <span class="text-xs opacity-80">${item}</span>
-                    <button onclick="removeGroceryItem(${index})" class="ml-auto text-red-500 text-[10px]"><i class="fa-solid fa-times"></i></button>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function removeGroceryItem(index) {
-            db.grocery.splice(index, 1);
-            saveData();
-        }
-
-        function clearGroceries() {
-            if(confirm("Clear grocery list?")) {
-                db.grocery = [];
-                saveData();
-            }
-        }
-
-        // === TOOLS LOGIC ===
-        function convert(type) {
-            if (type === 'g') {
-                const val = document.getElementById('tool-g').value;
-                document.getElementById('res-oz').innerText = (val * 0.035274).toFixed(1) + ' oz';
-            } else if (type === 'ml') {
-                const val = document.getElementById('tool-ml').value;
-                document.getElementById('res-cup').innerText = (val * 0.00422675).toFixed(2) + ' cup';
-            }
-        }
+        function delRec(i) { db.recipes.splice(i, 1); save(); }
+        function toGroc(i) { db.grocery.push(...db.recipes[i].items); save(); alert('Added to list'); }
         
-        // === TIMER LOGIC ===
-        let timerInterval;
-        function toggleTimer() {
-            const btn = document.getElementById('timer-btn');
-            if (btn.classList.contains('active-timer')) {
-                // Stop Timer
-                clearInterval(timerInterval);
-                btn.classList.remove('active-timer', 'bg-yellow-500', 'text-black');
-                btn.classList.add('bg-[#222]', 'text-white');
-                btn.innerHTML = '<i class="fa-solid fa-stopwatch"></i>';
-            } else {
-                // Start Timer
-                let timeLeft = 60;
-                btn.classList.add('active-timer', 'bg-yellow-500', 'text-black');
-                btn.classList.remove('bg-[#222]', 'text-white');
-                
-                // Haptic feedback if supported
-                if(navigator.vibrate) navigator.vibrate(50);
-                
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    btn.innerHTML = `<b>${timeLeft}</b>`;
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                        alert("Rest Complete!");
-                        toggleTimer(); // Reset UI
-                    }
-                }, 1000);
+        function renderGroc() {
+            const counts = {};
+            db.grocery.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
+            document.getElementById('groc-list').innerHTML = Object.keys(counts).map(k => `
+                <div class="flex justify-between p-3 border-b border-white/5 items-center">
+                    <span class="text-xs opacity-80">${k} ${counts[k]>1 ? `<span class="text-yellow-500 font-bold">(x${counts[k]})</span>` : ''}</span>
+                    <button onclick="remGroc('${k}')" class="text-red-500 text-[10px]"><i class="fa-solid fa-times"></i></button>
+                </div>`).join('');
+        }
+        function remGroc(k) { const idx = db.grocery.indexOf(k); if(idx>-1) db.grocery.splice(idx,1); save(); }
+        function clearGroc() { if(confirm('Clear list?')) { db.grocery = []; save(); } }
+
+        // === TOOLS ===
+        function calcORM() {
+            const w = parseFloat(document.getElementById('orm-w').value);
+            const r = parseFloat(document.getElementById('orm-r').value);
+            if(w && r) document.getElementById('orm-res').innerText = Math.round(w * (1 + r/30)) + ' kg';
+        }
+        function convert() {
+            const v = document.getElementById('conv-g').value;
+            document.getElementById('conv-oz').innerText = (v * 0.035274).toFixed(1) + ' oz';
+        }
+
+        // === BACKUP SYSTEM ===
+        function showBackup() {
+            const action = prompt("Type 'save' to copy data, or paste data to restore:");
+            if(action === 'save') {
+                navigator.clipboard.writeText(JSON.stringify(db));
+                alert("Data copied to clipboard! Save this somewhere safe.");
+            } else if (action && action.length > 10) {
+                try {
+                    db = JSON.parse(action);
+                    save();
+                    alert("Data restored successfully!");
+                } catch(e) { alert("Invalid data code."); }
             }
         }
 
-        // === STARTUP ===
+        function render() {
+            renderGym(); renderFood(); renderRec(); renderGroc(); renderWeight();
+        }
+
         init();
-        updateUI();
-        
-        // Initial Tab Select
-        toggleRecipeView('vault');
-
     </script>
 </body>
 </html>
+
