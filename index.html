@@ -1,32 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Thrive+</title>
 
-<link rel="manifest" href="manifest.json">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 :root { --bg:#000; --card:#111; --gold:#D4AF37 }
-body { background:var(--bg); color:#fff; font-family:-apple-system; overflow:hidden }
-.card { background:var(--card); border:1px solid #222; border-radius:18px }
-input,textarea {
-  background:none; border:none; border-bottom:1px solid #333;
-  color:white; width:100%; padding:10px 0; outline:none
+body {
+  background:var(--bg);
+  color:white;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  overflow:hidden;
 }
-input:focus,textarea:focus { border-bottom-color:var(--gold) }
-.view { display:none; height:calc(100vh - 180px); overflow-y:auto; padding-bottom:140px }
-.active { display:block }
+.card {
+  background:var(--card);
+  border:1px solid #222;
+  border-radius:18px;
+}
+input, textarea {
+  background:none;
+  border:none;
+  border-bottom:1px solid #333;
+  color:white;
+  width:100%;
+  padding:10px 0;
+  outline:none;
+}
+input:focus, textarea:focus { border-bottom-color:var(--gold) }
+.view {
+  display:none;
+  height:calc(100vh - 190px);
+  overflow-y:auto;
+  padding-bottom:140px;
+}
+.view.active { display:block }
 .nav-btn { opacity:.4 }
 .nav-btn.active { opacity:1; color:var(--gold) }
-.day-btn { opacity:.3; font-size:10px; font-weight:800 }
-.day-btn.active { opacity:1; color:var(--gold) }
 .checkbox-gold { accent-color:var(--gold) }
+.small { font-size:10px }
 </style>
 </head>
 
@@ -34,192 +51,235 @@ input:focus,textarea:focus { border-bottom-color:var(--gold) }
 
 <header class="flex justify-between items-center pt-6 mb-4">
   <div>
-    <h1 class="text-2xl font-black italic">THRIVE<span class="text-yellow-600">+</span></h1>
-    <p id="date" class="text-[10px] tracking-widest opacity-40"></p>
+    <h1 class="text-2xl font-black italic">
+      THRIVE<span class="text-yellow-600">+</span>
+    </h1>
+    <p id="dateText" class="small opacity-40"></p>
   </div>
-  <button onclick="backup()" class="text-xs border px-3 py-1 rounded">Backup</button>
+  <button onclick="backup()" class="border px-3 py-1 rounded text-xs">Backup</button>
 </header>
 
-<div class="flex justify-between mb-4">
-  <div id="days"></div>
-</div>
+<!-- VIEWS -->
 
-<!-- GYM -->
 <section id="gym" class="view active space-y-4">
   <div class="card p-4 flex gap-3">
-    <input id="gymIn" placeholder="Bench Press 4x8">
+    <input id="gymInput" placeholder="Bench Press 4x8">
     <button onclick="addGym()" class="bg-white text-black px-4 rounded">+</button>
   </div>
   <div id="gymList"></div>
-  <p id="restMsg" class="text-center text-xs opacity-40 hidden">REST DAY</p>
+  <p id="restMsg" class="text-center small opacity-40 hidden">REST DAY</p>
 </section>
 
-<!-- FOOD -->
 <section id="food" class="view space-y-4">
   <div class="card p-4 grid grid-cols-3 text-center">
-    <div><p id="cals">0</p><p class="text-[9px] opacity-40">KCAL</p></div>
-    <div><p id="prot">0g</p><p class="text-[9px] opacity-40">PRO</p></div>
-    <div><p id="grade">C</p><p class="text-[9px] opacity-40">GRADE</p></div>
+    <div><p id="calories">0</p><p class="small opacity-40">KCAL</p></div>
+    <div><p id="protein">0g</p><p class="small opacity-40">PRO</p></div>
+    <div><p id="grade">C</p><p class="small opacity-40">GRADE</p></div>
   </div>
 
   <div class="card p-4 space-y-2">
-    <input id="fName" placeholder="Meal">
+    <input id="foodName" placeholder="Meal">
     <div class="flex gap-2">
-      <input id="fCal" type="number" placeholder="Cals">
-      <input id="fPro" type="number" placeholder="Protein">
+      <input id="foodCal" type="number" placeholder="Cals">
+      <input id="foodPro" type="number" placeholder="Protein">
     </div>
-    <button onclick="addFood()" class="w-full bg-white text-black py-2 rounded">LOG</button>
+    <button onclick="addFood()" class="w-full bg-white text-black py-2 rounded">
+      LOG MEAL
+    </button>
   </div>
 
   <div id="foodList"></div>
 </section>
 
-<!-- STATS -->
-<section id="stats" class="view space-y-4">
-  <div class="card p-4">
-    <p>Weight: <span id="curW">--</span> kg</p>
-    <p>BMI: <span id="bmi">--</span></p>
-  </div>
-
-  <div class="card p-4">
-    <input id="newW" placeholder="New weight (kg)">
-    <button onclick="logWeight()" class="mt-2 bg-yellow-600 text-black px-4 py-1 rounded">LOG</button>
-  </div>
-
-  <div id="weekSummary" class="card p-4 text-xs"></div>
-</section>
-
-<!-- RECIPES -->
 <section id="recipes" class="view space-y-4">
   <div class="card p-4 space-y-2">
     <input id="rName" placeholder="Recipe name">
     <textarea id="rIng" placeholder="Ingredients (comma separated)"></textarea>
     <textarea id="rSteps" placeholder="Steps (one per line)"></textarea>
     <div class="flex gap-2">
-      <input id="rCal" placeholder="Calories">
-      <input id="rPro" placeholder="Protein">
+      <input id="rCal" type="number" placeholder="Calories">
+      <input id="rPro" type="number" placeholder="Protein">
     </div>
-    <button onclick="addRecipe()" class="w-full border py-2 rounded">SAVE</button>
+    <button onclick="addRecipe()" class="w-full border py-2 rounded">
+      SAVE RECIPE
+    </button>
   </div>
+
   <div id="recipeList"></div>
 </section>
 
+<section id="grocery" class="view space-y-4">
+  <div class="card p-4">
+    <p class="small opacity-40 uppercase mb-2">Grocery List</p>
+    <div id="groceryList"></div>
+    <button onclick="clearGrocery()" class="mt-3 text-red-500 text-xs">
+      Clear Grocery List
+    </button>
+  </div>
+</section>
+
 <!-- NAV -->
-<nav class="fixed bottom-6 left-6 right-6 bg-[#111] border rounded-full h-14 flex justify-around items-center">
-  <button onclick="show('gym')" class="nav-btn active">🏋️</button>
-  <button onclick="show('food')" class="nav-btn">🍴</button>
-  <button onclick="show('stats')" class="nav-btn">📊</button>
-  <button onclick="show('recipes')" class="nav-btn">📖</button>
+
+<nav class="fixed bottom-6 left-6 right-6 h-14 bg-[#111] border rounded-full flex justify-around items-center">
+  <button onclick="showView('gym')" class="nav-btn active">🏋️</button>
+  <button onclick="showView('food')" class="nav-btn">🍴</button>
+  <button onclick="showView('recipes')" class="nav-btn">📖</button>
+  <button onclick="showView('grocery')" class="nav-btn">🛒</button>
 </nav>
 
 <script>
 const today = new Date().toISOString().slice(0,10)
-const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-let view = 'gym'
 
-let db = JSON.parse(localStorage.getItem('thrive')) || {
-  gym:{}, food:{}, weight:[], recipes:[],
-  goals:{ protein:150, calories:2500 },
-  profile:{ height:180 }, streak:{ c:0,last:null }
+let db = JSON.parse(localStorage.getItem('thrive_clean')) || {
+  gym: {},
+  food: {},
+  recipes: [],
+  grocery: []
 }
 
-function save(){ localStorage.setItem('thrive',JSON.stringify(db)); render() }
+function save() {
+  localStorage.setItem('thrive_clean', JSON.stringify(db))
+  render()
+}
 
-function show(v){
-  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'))
-  document.getElementById(v).classList.add('active')
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'))
   event.target.classList.add('active')
 }
 
-function addGym(){
+/* ---------- GYM ---------- */
+function addGym() {
+  if (!gymInput.value) return
   db.gym[today] ??= []
-  db.gym[today].push({n:gymIn.value,d:false})
-  gymIn.value=''
+  db.gym[today].push({ n: gymInput.value, d: false })
+  gymInput.value = ''
   save()
 }
 
-function addFood(){
+/* ---------- FOOD ---------- */
+function addFood() {
+  if (!foodName.value) return
   db.food[today] ??= []
-  db.food[today].push({n:fName.value,c:+fCal.value,p:+fPro.value})
-  fName.value=fCal.value=fPro.value=''
-  save()
-}
-
-function addRecipe(){
-  db.recipes.push({
-    n:rName.value,
-    i:rIng.value.split(',').map(x=>x.trim()),
-    s:rSteps.value.split('\n').map(x=>x.trim()),
-    c:+rCal.value||0,
-    p:+rPro.value||0
+  db.food[today].push({
+    n: foodName.value,
+    c: +foodCal.value || 0,
+    p: +foodPro.value || 0
   })
-  rName.value=rIng.value=rSteps.value=rCal.value=rPro.value=''
+  foodName.value = foodCal.value = foodPro.value = ''
   save()
 }
 
-function logWeight(){
-  db.weight.unshift({d:today,v:+newW.value})
-  newW.value=''
+/* ---------- RECIPES ---------- */
+function addRecipe() {
+  if (!rName.value) return
+  db.recipes.push({
+    n: rName.value,
+    i: rIng.value.split(',').map(x => x.trim()).filter(Boolean),
+    s: rSteps.value.split('\n').map(x => x.trim()).filter(Boolean),
+    c: +rCal.value || 0,
+    p: +rPro.value || 0
+  })
+  rName.value = rIng.value = rSteps.value = rCal.value = rPro.value = ''
   save()
 }
 
-function backup(){
-  const a = prompt("Type copy or paste restore data")
-  if(a==='copy'){ navigator.clipboard.writeText(JSON.stringify(db)); alert('Copied') }
-  else try{ db=JSON.parse(a); save() }catch{}
+function cookAndLog(i) {
+  const r = db.recipes[i]
+  db.food[today] ??= []
+  db.food[today].push({ n: r.n, c: r.c, p: r.p })
+  save()
+  showView('food')
 }
 
-function render(){
-  date.innerText = new Date().toDateString()
-  
-  // GYM
-  const g = db.gym[today]||[]
-  gymList.innerHTML = g.map((e,i)=>`
+function addRecipeToGrocery(i) {
+  db.grocery.push(...db.recipes[i].i)
+  save()
+}
+
+/* ---------- GROCERY ---------- */
+function clearGrocery() {
+  if (!confirm('Clear grocery list?')) return
+  db.grocery = []
+  save()
+}
+
+/* ---------- BACKUP ---------- */
+function backup() {
+  const input = prompt("Type COPY to export or paste data to restore")
+  if (input === 'COPY') {
+    navigator.clipboard.writeText(JSON.stringify(db))
+    alert('Copied to clipboard')
+  } else {
+    try {
+      db = JSON.parse(input)
+      save()
+      alert('Restored')
+    } catch {
+      alert('Invalid data')
+    }
+  }
+}
+
+/* ---------- RENDER ---------- */
+function render() {
+  dateText.innerText = new Date().toDateString()
+
+  /* Gym */
+  const g = db.gym[today] || []
+  gymList.innerHTML = g.map((e,i) => `
     <div class="card p-3 flex justify-between">
-      <span class="${e.d?'line-through opacity-40':''}">${e.n}</span>
-      <input type="checkbox" ${e.d?'checked':''}
-        onchange="db.gym['${today}'][${i}].d=!db.gym['${today}'][${i}].d;save()"
-        class="checkbox-gold">
-    </div>`).join('')
-  restMsg.classList.toggle('hidden',g.length>0)
+      <span class="${e.d ? 'line-through opacity-40' : ''}">${e.n}</span>
+      <input type="checkbox" class="checkbox-gold"
+        ${e.d ? 'checked' : ''}
+        onchange="db.gym['${today}'][${i}].d = !db.gym['${today}'][${i}].d; save()">
+    </div>
+  `).join('')
+  restMsg.classList.toggle('hidden', g.length > 0)
 
-  // FOOD
-  const f = db.food[today]||[]
-  let tc=0,tp=0
-  foodList.innerHTML = f.map(x=>{
-    tc+=x.c; tp+=x.p
-    return `<div class="text-xs flex justify-between">
+  /* Food */
+  const f = db.food[today] || []
+  let tc = 0, tp = 0
+  foodList.innerHTML = f.map(x => {
+    tc += x.c
+    tp += x.p
+    return `<div class="flex justify-between text-xs border-b py-2">
       <span>${x.n}</span><span>${x.p}g</span>
     </div>`
   }).join('')
-  cals.innerText=tc
-  prot.innerText=tp+'g'
-  grade.innerText = tp>=db.goals.protein?'A':tp>100?'B':'C'
+  calories.innerText = tc
+  protein.innerText = tp + 'g'
+  grade.innerText = tp >= 150 ? 'A' : tp >= 100 ? 'B' : 'C'
 
-  // STATS
-  const w = db.weight[0]?.v||'--'
-  curW.innerText=w
-  if(w){
-    const bmiV=(w/((db.profile.height/100)**2)).toFixed(1)
-    bmi.innerText=bmiV
-  }
-
-  // WEEK SUMMARY
-  weekSummary.innerHTML = `
-    <b>Weekly Summary</b><br>
-    Avg Protein: ${tp}g<br>
-    Workouts: ${Object.keys(db.gym).length}
-  `
-
-  // RECIPES
-  recipeList.innerHTML = db.recipes.map((r,i)=>`
+  /* Recipes */
+  recipeList.innerHTML = db.recipes.map((r,i) => `
     <div class="card p-3 space-y-1">
       <b>${r.n}</b>
-      <p class="text-xs opacity-40">${r.i.length} ingredients</p>
-      <button onclick="db.food[today].push({n:'${r.n}',c:${r.c},p:${r.p}});save()"
-        class="text-xs border px-2 rounded">COOK & LOG</button>
-    </div>`).join('')
+      <p class="small opacity-40">${r.i.length} ingredients • ${r.s.length} steps</p>
+      <div class="flex gap-2 mt-2">
+        <button onclick="cookAndLog(${i})"
+          class="text-xs border px-2 py-1 rounded">
+          COOK & LOG
+        </button>
+        <button onclick="addRecipeToGrocery(${i})"
+          class="text-xs border px-2 py-1 rounded opacity-70">
+          ADD TO GROCERY
+        </button>
+      </div>
+    </div>
+  `).join('')
+
+  /* Grocery */
+  const counts = {}
+  db.grocery.forEach(i => counts[i] = (counts[i] || 0) + 1)
+  groceryList.innerHTML = Object.keys(counts).length
+    ? Object.entries(counts).map(([k,v]) => `
+      <div class="flex justify-between text-xs border-b py-2">
+        <span>${k}</span><span class="text-yellow-500">x${v}</span>
+      </div>
+    `).join('')
+    : `<p class="small opacity-40">No items</p>`
 }
 
 render()
