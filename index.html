@@ -1,282 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Thrive+</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* THRIVE+ v4.3 (Safe Mode) */
-        :root { --bg: #000000; --card: #111; --gold: #D4AF37; }
-        body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, sans-serif; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-        
-        .card { background: var(--card); border: 1px solid #222; border-radius: 20px; }
-        input, textarea { background: transparent; border: none; border-bottom: 1px solid #333; color: white; width: 100%; padding: 12px 0; outline: none; transition: 0.3s; font-size: 14px; }
-        input:focus { border-bottom-color: var(--gold); }
-        
-        .view-section { display: none; height: calc(100vh - 200px); overflow-y: auto; padding-bottom: 150px; }
-        .active-view { display: block; animation: fade 0.3s ease; }
-        
-        .nav-btn { opacity: 0.4; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .active-nav { opacity: 1; color: var(--gold); }
-        
-        .day-btn { opacity: 0.3; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; transition: 0.3s; }
-        .active-day { opacity: 1; background: #222; color: var(--gold); border: 1px solid var(--gold); }
-        .checkbox-gold { accent-color: var(--gold); width: 18px; height: 18px; }
-        .chip { background: #222; border: 1px solid #333; padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
-        
-        .bar-container { display: flex; align-items: flex-end; justify-content: space-between; height: 140px; gap: 4px; padding-top: 20px; }
-        .bar { background: #333; width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative; }
-        .bar.active { background: var(--gold); }
-        
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Thrive+</title>
+
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root { --bg:#000; --card:#111; --gold:#D4AF37 }
+body { background:var(--bg); color:#fff; font-family:-apple-system; overflow:hidden }
+.card { background:var(--card); border:1px solid #222; border-radius:18px }
+input,textarea {
+  background:none; border:none; border-bottom:1px solid #333;
+  color:white; width:100%; padding:10px 0; outline:none
+}
+input:focus,textarea:focus { border-bottom-color:var(--gold) }
+.view { display:none; height:calc(100vh - 180px); overflow-y:auto; padding-bottom:140px }
+.active { display:block }
+.nav-btn { opacity:.4 }
+.nav-btn.active { opacity:1; color:var(--gold) }
+.day-btn { opacity:.3; font-size:10px; font-weight:800 }
+.day-btn.active { opacity:1; color:var(--gold) }
+.checkbox-gold { accent-color:var(--gold) }
+</style>
 </head>
+
 <body class="p-6">
 
-    <header class="flex justify-between items-center pt-8 mb-4">
-        <div>
-            <h1 class="text-2xl font-black italic tracking-tighter">THRIVE<span class="text-yellow-600">+</span> <span class="text-[10px] not-italic opacity-30 font-normal">v4.3</span></h1>
-            <p id="date-display" class="text-[10px] tracking-[0.2em] text-gray-500 uppercase mt-1">LOADING</p>
-        </div>
-        <div class="flex gap-2">
-            <div id="streak-badge" class="hidden flex items-center gap-1 bg-orange-900/20 px-2 rounded text-[10px] text-orange-500 border border-orange-500/20">
-                <i class="fa-solid fa-fire"></i> <span id="streak-count">0</span>
-            </div>
-            <button onclick="backup()" class="w-8 h-8 rounded-full bg-[#111] border border-[#222] text-gray-500"><i class="fa-solid fa-gear"></i></button>
-        </div>
-    </header>
+<header class="flex justify-between items-center pt-6 mb-4">
+  <div>
+    <h1 class="text-2xl font-black italic">THRIVE<span class="text-yellow-600">+</span></h1>
+    <p id="date" class="text-[10px] tracking-widest opacity-40"></p>
+  </div>
+  <button onclick="backup()" class="text-xs border px-3 py-1 rounded">Backup</button>
+</header>
 
-    <div class="flex justify-between mb-6 overflow-x-auto gap-2 pb-2 hide-scroll">
-        <button onclick="setDay('Mon')" id="d-Mon" class="day-btn">MON</button>
-        <button onclick="setDay('Tue')" id="d-Tue" class="day-btn">TUE</button>
-        <button onclick="setDay('Wed')" id="d-Wed" class="day-btn">WED</button>
-        <button onclick="setDay('Thu')" id="d-Thu" class="day-btn">THU</button>
-        <button onclick="setDay('Fri')" id="d-Fri" class="day-btn">FRI</button>
-        <button onclick="setDay('Sat')" id="d-Sat" class="day-btn">SAT</button>
-        <button onclick="setDay('Sun')" id="d-Sun" class="day-btn">SUN</button>
+<div class="flex justify-between mb-4">
+  <div id="days"></div>
+</div>
+
+<!-- GYM -->
+<section id="gym" class="view active space-y-4">
+  <div class="card p-4 flex gap-3">
+    <input id="gymIn" placeholder="Bench Press 4x8">
+    <button onclick="addGym()" class="bg-white text-black px-4 rounded">+</button>
+  </div>
+  <div id="gymList"></div>
+  <p id="restMsg" class="text-center text-xs opacity-40 hidden">REST DAY</p>
+</section>
+
+<!-- FOOD -->
+<section id="food" class="view space-y-4">
+  <div class="card p-4 grid grid-cols-3 text-center">
+    <div><p id="cals">0</p><p class="text-[9px] opacity-40">KCAL</p></div>
+    <div><p id="prot">0g</p><p class="text-[9px] opacity-40">PRO</p></div>
+    <div><p id="grade">C</p><p class="text-[9px] opacity-40">GRADE</p></div>
+  </div>
+
+  <div class="card p-4 space-y-2">
+    <input id="fName" placeholder="Meal">
+    <div class="flex gap-2">
+      <input id="fCal" type="number" placeholder="Cals">
+      <input id="fPro" type="number" placeholder="Protein">
     </div>
+    <button onclick="addFood()" class="w-full bg-white text-black py-2 rounded">LOG</button>
+  </div>
 
-    <main>
-        <section id="view-gym" class="view-section active-view space-y-4">
-            <div class="card p-4 flex gap-3 items-center">
-                <input id="gym-in" placeholder="Add Exercise (e.g. Bench Press 4x8)" class="text-sm">
-                <button onclick="addEx()" class="w-8 h-8 rounded-full bg-white text-black font-bold">+</button>
-            </div>
-            <div id="gym-list" class="space-y-3"></div>
-            <div id="gym-msg" class="text-center mt-10 opacity-30 text-[10px] tracking-widest hidden">REST DAY</div>
-        </section>
+  <div id="foodList"></div>
+</section>
 
-        <section id="view-food" class="view-section space-y-6">
-            <div class="card p-6 grid grid-cols-3 gap-2 text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-yellow-600"></div>
-                <div><p id="dash-cal" class="text-xl font-bold">0</p><p class="text-[8px] opacity-40 uppercase">Kcal</p></div>
-                <div class="border-x border-white/10"><p id="dash-pro" class="text-xl font-bold">0g</p><p class="text-[8px] opacity-40 uppercase">Protein</p></div>
-                <div><p id="dash-scr" class="text-xl font-bold text-yellow-500">-</p><p class="text-[8px] opacity-40 uppercase">Score</p></div>
-            </div>
-            <div class="card p-5 space-y-4">
-                <div id="quick-add" class="flex gap-2 overflow-x-auto hide-scroll pb-1"></div>
-                <input id="f-name" placeholder="Meal Name">
-                <div class="flex gap-4">
-                    <input id="f-cal" type="number" placeholder="Cals">
-                    <input id="f-pro" type="number" placeholder="Pro (g)">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="addMeal()" class="flex-1 bg-white text-black py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">LOG MEAL</button>
-                    <button onclick="clearFood()" class="px-4 bg-[#222] text-red-500 rounded-xl"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </div>
-            <div id="food-list" class="space-y-2"></div>
-        </section>
+<!-- STATS -->
+<section id="stats" class="view space-y-4">
+  <div class="card p-4">
+    <p>Weight: <span id="curW">--</span> kg</p>
+    <p>BMI: <span id="bmi">--</span></p>
+  </div>
 
-        <section id="view-stats" class="view-section space-y-6">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="card p-4">
-                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">Current</p>
-                    <p id="disp-w" class="text-2xl font-bold">-- <span class="text-sm opacity-50 font-normal">kg</span></p>
-                </div>
-                <div class="card p-4">
-                    <p class="text-[9px] opacity-50 uppercase tracking-widest mb-1">BMI</p>
-                    <p id="disp-bmi" class="text-2xl font-bold text-yellow-500">--</p>
-                    <p id="bmi-cat" class="text-[10px] opacity-70 mt-1">--</p>
-                </div>
-            </div>
+  <div class="card p-4">
+    <input id="newW" placeholder="New weight (kg)">
+    <button onclick="logWeight()" class="mt-2 bg-yellow-600 text-black px-4 py-1 rounded">LOG</button>
+  </div>
 
-            <div class="card p-5">
-                <h3 class="text-[10px] opacity-50 uppercase tracking-widest">Weight Trend</h3>
-                <div id="weight-chart" class="bar-container"></div>
-            </div>
+  <div id="weekSummary" class="card p-4 text-xs"></div>
+</section>
 
-            <div class="card p-5 space-y-4">
-                <div class="flex justify-between items-center border-b border-[#222] pb-2">
-                    <label class="text-xs opacity-70">Height (cm)</label>
-                    <input id="in-h" type="number" class="w-20 text-right" placeholder="180" oninput="saveHeight()">
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <input id="in-w" type="number" placeholder="New Weight (kg)">
-                    <button onclick="logWeight()" class="px-6 bg-yellow-600 text-black font-bold rounded-lg text-xs">LOG</button>
-                </div>
-            </div>
-            <div id="weight-list" class="space-y-2 pb-10"></div>
-        </section>
+<!-- RECIPES -->
+<section id="recipes" class="view space-y-4">
+  <div class="card p-4 space-y-2">
+    <input id="rName" placeholder="Recipe name">
+    <textarea id="rIng" placeholder="Ingredients (comma separated)"></textarea>
+    <textarea id="rSteps" placeholder="Steps (one per line)"></textarea>
+    <div class="flex gap-2">
+      <input id="rCal" placeholder="Calories">
+      <input id="rPro" placeholder="Protein">
+    </div>
+    <button onclick="addRecipe()" class="w-full border py-2 rounded">SAVE</button>
+  </div>
+  <div id="recipeList"></div>
+</section>
 
-        <section id="view-rec" class="view-section space-y-5">
-            <div class="flex bg-[#111] p-1 rounded-xl mb-4">
-                <button onclick="togRec('vault')" id="tab-v" class="flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]">VAULT</button>
-                <button onclick="togRec('list')" id="tab-l" class="flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40">GROCERY</button>
-            </div>
-            <div id="box-v" class="space-y-4">
-                <div class="card p-4 space-y-3">
-                    <input id="r-name" placeholder="Recipe Name">
-                    <textarea id="r-ing" rows="1" placeholder="Ingredients (comma separated)"></textarea>
-                    <button onclick="addRec()" class="w-full border border-white/10 py-2 rounded-lg text-[10px] hover:bg-white/5 uppercase">Save Recipe</button>
-                </div>
-                <div id="rec-list" class="space-y-3"></div>
-            </div>
-            <div id="box-l" class="hidden space-y-3">
-                <div class="flex justify-between px-2"><span class="text-[10px] opacity-50 uppercase">Shopping List</span><button onclick="clrGroc()" class="text-red-500 text-[10px]">Clear</button></div>
-                <div id="groc-list" class="space-y-2"></div>
-            </div>
-        </section>
-    </main>
+<!-- NAV -->
+<nav class="fixed bottom-6 left-6 right-6 bg-[#111] border rounded-full h-14 flex justify-around items-center">
+  <button onclick="show('gym')" class="nav-btn active">🏋️</button>
+  <button onclick="show('food')" class="nav-btn">🍴</button>
+  <button onclick="show('stats')" class="nav-btn">📊</button>
+  <button onclick="show('recipes')" class="nav-btn">📖</button>
+</nav>
 
-    <nav class="fixed bottom-6 left-6 right-6 h-16 bg-[#111]/95 border border-white/10 rounded-full flex justify-around items-center z-50 shadow-2xl">
-        <button onclick="show('gym')" id="n-gym" class="nav-btn active-nav"><i class="fa-solid fa-dumbbell text-lg"></i></button>
-        <button onclick="show('food')" id="n-food" class="nav-btn"><i class="fa-solid fa-utensils text-lg"></i></button>
-        <button onclick="show('stats')" id="n-stats" class="nav-btn"><i class="fa-solid fa-chart-bar text-lg"></i></button>
-        <button onclick="show('rec')" id="n-rec" class="nav-btn"><i class="fa-solid fa-book text-lg"></i></button>
-    </nav>
+<script>
+const today = new Date().toISOString().slice(0,10)
+const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+let view = 'gym'
 
-    <script>
-        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        let day = days[new Date().getDay()];
-        let db = JSON.parse(localStorage.getItem('thrive_v4')) || {
-            gym: {Mon:[],Tue:[],Wed:[],Thu:[],Fri:[],Sat:[],Sun:[]},
-            food: [], recent: [], recipes: [], grocery: [], weight: [],
-            profile: { height: '' }, streak: { c: 0, last: null }
-        };
+let db = JSON.parse(localStorage.getItem('thrive')) || {
+  gym:{}, food:{}, weight:[], recipes:[],
+  goals:{ protein:150, calories:2500 },
+  profile:{ height:180 }, streak:{ c:0,last:null }
+}
 
-        function save() { localStorage.setItem('thrive_v4', JSON.stringify(db)); render(); }
-        function init() { 
-            document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'short'});
-            document.getElementById('in-h').value = db.profile.height || '';
-            setDay(day); render();
-        }
+function save(){ localStorage.setItem('thrive',JSON.stringify(db)); render() }
 
-        function show(v) {
-            document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active-view'));
-            document.getElementById('view-'+v).classList.add('active-view');
-            document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active-nav'));
-            document.getElementById('n-'+v).classList.add('active-nav');
-        }
-        function setDay(d) {
-            day = d; document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('active-day'));
-            document.getElementById('d-'+d).classList.add('active-day'); renderGym();
-        }
+function show(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'))
+  document.getElementById(v).classList.add('active')
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))
+  event.target.classList.add('active')
+}
 
-        function addEx() {
-            const v = document.getElementById('gym-in').value; if(!v)return;
-            db.gym[day].push({n:v, d:false}); document.getElementById('gym-in').value='';
-            logAct(); save();
-        }
-        function renderGym() {
-            const l = document.getElementById('gym-list'); l.innerHTML=''; const exs = db.gym[day];
-            document.getElementById('gym-msg').classList.toggle('hidden', exs.length>0);
-            exs.forEach((e,i) => {
-                l.innerHTML += `<div class="card p-4 flex justify-between items-center"><span class="${e.d?'line-through opacity-30':''} text-sm">${e.n}</span><div class="flex gap-3"><input type="checkbox" ${e.d?'checked':''} onchange="togEx(${i})" class="checkbox-gold"><button onclick="delEx(${i})" class="text-red-900 text-xs"><i class="fa-solid fa-times"></i></button></div></div>`;
-            });
-        }
-        function togEx(i){db.gym[day][i].d=!db.gym[day][i].d; save();}
-        function delEx(i){db.gym[day].splice(i,1); save();}
+function addGym(){
+  db.gym[today] ??= []
+  db.gym[today].push({n:gymIn.value,d:false})
+  gymIn.value=''
+  save()
+}
 
-        function addMeal(n,c,p) {
-            const name = n||document.getElementById('f-name').value;
-            const cal = c||parseInt(document.getElementById('f-cal').value)||0;
-            const pro = p||parseInt(document.getElementById('f-pro').value)||0;
-            if(!name)return;
-            db.food.push({n:name,c:cal,p:pro});
-            if(!db.recent.find(x=>x.n===name)) { db.recent.unshift({n:name,c:cal,p:pro}); if(db.recent.length>5)db.recent.pop(); }
-            document.getElementById('f-name').value='';
-            logAct(); save();
-        }
-        function renderFood() {
-            let tc=0, tp=0;
-            document.getElementById('food-list').innerHTML = db.food.map(f=>{ tc+=f.c; tp+=f.p; return `<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-80">${f.n}</span><span class="opacity-40">${f.p}g P | ${f.c}</span></div>` }).join('');
-            document.getElementById('dash-cal').innerText=tc; document.getElementById('dash-pro').innerText=tp+'g';
-            document.getElementById('dash-scr').innerText = tp>150?'A+':tp>120?'A':tp>100?'B':'C';
-            document.getElementById('quick-add').innerHTML = db.recent.map(m=>`<button onclick="addMeal('${m.n}',${m.c},${m.p})" class="chip hover:bg-yellow-600 hover:text-black">${m.n}</button>`).join('');
-        }
-        function clearFood(){if(confirm('Clear Log?')){db.food=[]; save();}}
+function addFood(){
+  db.food[today] ??= []
+  db.food[today].push({n:fName.value,c:+fCal.value,p:+fPro.value})
+  fName.value=fCal.value=fPro.value=''
+  save()
+}
 
-        function saveHeight() { db.profile.height = document.getElementById('in-h').value; save(); }
-        function logWeight() {
-            const w = document.getElementById('in-w').value;
-            if(w) db.weight.unshift({d:new Date().toLocaleDateString().slice(0,5), v:parseFloat(w)});
-            document.getElementById('in-w').value='';
-            logAct(); save();
-        }
-        function renderMetrics() {
-            const w = db.weight.length ? db.weight[0].v : 0;
-            const h = db.profile.height;
-            document.getElementById('disp-w').innerHTML = w ? `${w} <span class="text-sm opacity-50 font-normal">kg</span>` : '--';
-            if(w && h) {
-                const bmi = (w / ((h/100)*(h/100))).toFixed(1);
-                document.getElementById('disp-bmi').innerText = bmi;
-                let cat = bmi < 18.5 ? 'Underweight' : bmi < 24.9 ? 'Healthy' : bmi < 29.9 ? 'Overweight' : 'Obese';
-                document.getElementById('bmi-cat').innerHTML = `<span class="${cat==='Healthy'?'text-green-500':'text-yellow-500'}">${cat}</span>`;
-            }
-            document.getElementById('weight-list').innerHTML = db.weight.map(x=>`<div class="flex justify-between p-3 border-b border-white/5 text-xs"><span class="opacity-50">${x.d}</span><span class="font-bold text-yellow-500">${x.v} kg</span></div>`).join('');
-            
-            const chart = document.getElementById('weight-chart');
-            chart.innerHTML = '';
-            if(db.weight.length > 0) {
-                const data = db.weight.slice(0, 7).reverse();
-                const max = Math.max(...data.map(d => d.v)) + 1;
-                const min = Math.min(...data.map(d => d.v)) - 1;
-                data.forEach((pt, i) => {
-                    const h = ((pt.v - min) / (max - min)) * 100;
-                    const isLast = i === data.length - 1;
-                    chart.innerHTML += `<div class="w-full flex flex-col items-center gap-1"><div class="bar ${isLast ? 'active' : ''}" style="height: ${Math.max(h, 15)}%"></div><span class="text-[8px] opacity-30">${pt.d}</span></div>`;
-                });
-            } else {
-                chart.innerHTML = '<p class="w-full text-center text-[10px] opacity-30 self-center">LOG WEIGHT TO SEE TREND</p>';
-            }
-        }
+function addRecipe(){
+  db.recipes.push({
+    n:rName.value,
+    i:rIng.value.split(',').map(x=>x.trim()),
+    s:rSteps.value.split('\n').map(x=>x.trim()),
+    c:+rCal.value||0,
+    p:+rPro.value||0
+  })
+  rName.value=rIng.value=rSteps.value=rCal.value=rPro.value=''
+  save()
+}
 
-        function togRec(v) {
-            document.getElementById('box-v').classList.toggle('hidden', v!=='vault');
-            document.getElementById('box-l').classList.toggle('hidden', v!=='list');
-            document.getElementById('tab-v').className = v==='vault'?"flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]":"flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
-            document.getElementById('tab-l').className = v==='list'?"flex-1 py-2 text-[10px] font-bold rounded-lg bg-[#222]":"flex-1 py-2 text-[10px] font-bold rounded-lg opacity-40";
-        }
-        function addRec() {
-            const n = document.getElementById('r-name').value; const i = document.getElementById('r-ing').value;
-            if(!n)return; db.recipes.push({n:n, i:i.split(',').map(x=>x.trim()).filter(x=>x)});
-            document.getElementById('r-name').value=''; document.getElementById('r-ing').value=''; save();
-        }
-        function renderRec() {
-            document.getElementById('rec-list').innerHTML = db.recipes.map((r,i)=>`<div class="card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">${r.n}</div><div class="text-[9px] opacity-50">${r.i.length} Items</div></div><div class="flex gap-2"><button onclick="toGroc(${i})" class="border border-white/10 px-2 py-1 rounded text-[9px] uppercase">Add</button><button onclick="delRec(${i})" class="text-red-500 text-[9px]"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
-            const counts={}; db.grocery.forEach(x=>{counts[x]=(counts[x]||0)+1});
-            document.getElementById('groc-list').innerHTML = Object.keys(counts).map(k=>`<div class="flex justify-between p-3 border-b border-white/5 items-center"><span class="text-xs opacity-80">${k} ${counts[k]>1?`<span class="text-yellow-500 font-bold">(x${counts[k]})</span>`:''}</span><button onclick="remGroc('${k}')" class="text-red-500 text-[10px]"><i class="fa-solid fa-times"></i></button></div>`).join('');
-        }
-        function toGroc(i){db.grocery.push(...db.recipes[i].i);save();alert('Added');}
-        function delRec(i){db.recipes.splice(i,1);save();}
-        function remGroc(k){const i=db.grocery.indexOf(k);if(i>-1)db.grocery.splice(i,1);save();}
-        function clrGroc(){if(confirm('Clear?')){db.grocery=[];save();}}
+function logWeight(){
+  db.weight.unshift({d:today,v:+newW.value})
+  newW.value=''
+  save()
+}
 
-        function logAct() { const t=new Date().toDateString(); if(db.streak.last!==t){db.streak.c++; db.streak.last=t; save();} }
-        function backup() { const a=prompt("Type 'copy' to save, or paste code to restore:"); if(a==='copy'){navigator.clipboard.writeText(JSON.stringify(db));alert('Copied!');}else if(a&&a.length>10){try{db=JSON.parse(a);save();alert('Restored!');}catch(e){alert('Error');}} }
-        function render(){ renderGym(); renderFood(); renderMetrics(); renderRec(); 
-            if(db.streak.c>0){document.getElementById('streak-badge').classList.remove('hidden');document.getElementById('streak-count').innerText=db.streak.c;}
-        }
+function backup(){
+  const a = prompt("Type copy or paste restore data")
+  if(a==='copy'){ navigator.clipboard.writeText(JSON.stringify(db)); alert('Copied') }
+  else try{ db=JSON.parse(a); save() }catch{}
+}
 
-        init();
-    </script>
+function render(){
+  date.innerText = new Date().toDateString()
+  
+  // GYM
+  const g = db.gym[today]||[]
+  gymList.innerHTML = g.map((e,i)=>`
+    <div class="card p-3 flex justify-between">
+      <span class="${e.d?'line-through opacity-40':''}">${e.n}</span>
+      <input type="checkbox" ${e.d?'checked':''}
+        onchange="db.gym['${today}'][${i}].d=!db.gym['${today}'][${i}].d;save()"
+        class="checkbox-gold">
+    </div>`).join('')
+  restMsg.classList.toggle('hidden',g.length>0)
+
+  // FOOD
+  const f = db.food[today]||[]
+  let tc=0,tp=0
+  foodList.innerHTML = f.map(x=>{
+    tc+=x.c; tp+=x.p
+    return `<div class="text-xs flex justify-between">
+      <span>${x.n}</span><span>${x.p}g</span>
+    </div>`
+  }).join('')
+  cals.innerText=tc
+  prot.innerText=tp+'g'
+  grade.innerText = tp>=db.goals.protein?'A':tp>100?'B':'C'
+
+  // STATS
+  const w = db.weight[0]?.v||'--'
+  curW.innerText=w
+  if(w){
+    const bmiV=(w/((db.profile.height/100)**2)).toFixed(1)
+    bmi.innerText=bmiV
+  }
+
+  // WEEK SUMMARY
+  weekSummary.innerHTML = `
+    <b>Weekly Summary</b><br>
+    Avg Protein: ${tp}g<br>
+    Workouts: ${Object.keys(db.gym).length}
+  `
+
+  // RECIPES
+  recipeList.innerHTML = db.recipes.map((r,i)=>`
+    <div class="card p-3 space-y-1">
+      <b>${r.n}</b>
+      <p class="text-xs opacity-40">${r.i.length} ingredients</p>
+      <button onclick="db.food[today].push({n:'${r.n}',c:${r.c},p:${r.p}});save()"
+        class="text-xs border px-2 rounded">COOK & LOG</button>
+    </div>`).join('')
+}
+
+render()
+</script>
 </body>
-    
-</html> 
-
+</html>
